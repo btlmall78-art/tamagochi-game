@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Тамагочи-Самокатер / Скейтер / Роллер — IMBASQUAD TAMA</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="top-bar">
+    <div class="clock" id="clock"></div>
+    <div class="game-title-top">IMBASQUAD TAMA</div>
+    <button class="settings-gear" id="settingsGear" data-tooltip="Настройки" aria-label="Настройки">⚙️</button>
+    <div class="dropdown-menu" id="settingsDropdown">
+      <button id="resetGameBtn">🔄 НАЧАТЬ ЗАНОВО</button>
+      <button id="changeRiderBtn">👤 СМЕНИТЬ РАЙДЕРА</button>
+    </div>
+  </div>
+
+  <div class="level-box">
+    <div class="level-text" id="levelText">УРОВЕНЬ 1</div>
+    <div class="xp-bar-container">
+      <div class="xp-bar-fill" id="xpBarFill"></div>
+    </div>
+    <div class="combo-indicator" id="comboText"></div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat" id="skill" data-tooltip="Мастерство = ваш уровень. Влияет на множители наград.">
+      <div class="stat-icon">🏆</div>
+      <div class="stat-value">1</div>
+      <div class="stat-label">МАСТЕРСТВО</div>
+    </div>
+
+    <div class="stat" id="coins" data-tooltip="Монеты для покупок и ремонта.">
+      <div class="stat-icon">💰</div>
+      <div class="stat-value">50</div>
+      <div class="stat-label">МОНЕТЫ</div>
+      <div class="bonus-badge" id="coinsBonus" style="display:none;">+10%</div>
+    </div>
+
+    <div class="stat" id="rep" data-tooltip="Репутация. Можно использовать в будущих обновлениях.">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-value">0</div>
+      <div class="stat-label">РЕПУТАЦИЯ</div>
+    </div>
+  </div>
+
+  <div class="rider-container">
+    <div class="rider-area">
+      <div class="rider-image">
+        <img id="riderImg" src="assets/scooter_rider1.png" alt="Райдер">
+      </div>
+      <div class="rider-status">
+        <span id="sleepIcon" style="display: none;">💤</span>
+        <span id="brokenIcon" style="display: none;">🔧</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat" id="energy" data-tooltip="Энергия тратится на действия. Восстанавливается отдыхом.">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-value">100</div>
+      <div class="stat-label">ЭНЕРГИЯ</div>
+      <div class="bonus-badge" id="energyBonus" style="display:none;">+20 MAX</div>
+    </div>
+
+    <div class="stat" id="drive" data-tooltip="Драйв влияет на успех трюков. Растёт от катания и трюков.">
+      <div class="stat-icon">💥</div>
+      <div class="stat-value">100</div>
+      <div class="stat-label">ДРАЙВ</div>
+    </div>
+
+    <div class="stat" id="scooter" data-tooltip="Состояние транспорта. При 0 он сломан, нужно чинить.">
+      <div class="stat-icon">🛴</div>
+      <div class="stat-value">100</div>
+      <div class="stat-label">ТРАНСПОРТ</div>
+    </div>
+  </div>
+
+  <div id="ridingProgressContainer" style="display: none; width: 100%; max-width: 500px; margin: 0 auto;">
+    <div class="riding-text">🚴 КАТАНИЕ...</div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="ridingProgressFill"></div>
+    </div>
+  </div>
+
+  <div class="game-actions" id="gameActions">
+    <button class="action-btn" id="trickBtn" data-tooltip="Сделать трюк: попади в зелёную зону!">
+      <img src="https://img.icons8.com/color/96/kick-scooter.png" alt="">
+      Трюк
+    </button>
+
+    <button class="action-btn" id="rideBtn" data-tooltip="Катание: даёт XP и монеты, тратит энергию.">
+      <img src="https://img.icons8.com/color/96/road.png" alt="">
+      Катание
+    </button>
+
+    <button class="action-btn" id="restBtn" data-tooltip="Отдых: восстанавливает энергию.">
+      <img src="https://img.icons8.com/color/96/coffee--v1.png" alt="">
+      Отдых
+    </button>
+
+    <button class="action-btn" id="workshopBtn" data-tooltip="Починить транспорт за монеты или опыт.">
+      <img src="https://img.icons8.com/color/96/wrench.png" alt="">
+      Мастерская
+    </button>
+
+    <button class="action-btn" id="shopBtn" data-tooltip="Купить предметы с бонусами.">
+      <img src="https://img.icons8.com/color/96/t-shirt.png" alt="">
+      Магазин
+    </button>
+
+    <button class="action-btn" id="questsBtn" data-tooltip="Выполняй задания и получай награды.">
+      <img src="https://img.icons8.com/color/96/scroll.png" alt="">
+      Квесты
+    </button>
+
+    <button class="action-btn" id="achievementsBtn" data-tooltip="Достижения дают особые призы.">
+      <img src="https://img.icons8.com/color/96/medal.png" alt="">
+      Достижения
+    </button>
+
+    <button class="action-btn" id="dailyBonusBtn" data-tooltip="Ежедневный бонус за вход.">
+      <img src="https://img.icons8.com/color/96/gift.png" alt="">
+      Бонус
+    </button>
+  </div>
+
+  <div class="mini-game" id="miniGame">
+    <div class="mini-game-bg"></div>
+    <div class="green-zone" id="greenZone"></div>
+    <div class="runner" id="runner"></div>
+  </div>
+
+  <div class="panel" id="workshopPanel">
+    <div class="panel-content-box">
+      <div class="panel-header">
+        <div class="panel-title">🔧 Мастерская</div>
+        <button class="close-btn" onclick="document.getElementById('workshopPanel').style.display='none'">✕</button>
+      </div>
+      <div class="panel-body">
+        <div>Состояние транспорта: <b id="scooterStatus">100</b>/100</div>
+        <div>Текущий опыт: <b id="xpAmount">0</b> XP</div>
+
+
+   <div class="repair-wrapper">
+  <button class="action-btn repair-main-btn" id="repairMainBtn">
+    🔧 Починить
+  </button>
+  <div class="repair-options" id="repairOptions">
+    <button id="repairCoinsBtn">💰 За монеты (50)</button>
+    <button id="repairXPBtn">✨ За XP (50)</button>
+  </div>
+</div>
+
+  
+        <hr style="margin:16px 0; border:none; border-top:1px solid rgba(255,255,255,0.15);">
+
+<div style="margin-bottom:10px; font-family:'Press Start 2P', cursive; color:#f8e070; font-size:0.8rem;">
+  КАСТОМИЗАЦИЯ
+</div>
+
+<div class="vehicle-preview scooter-preview" id="vehiclePreview">
+  <img class="vehicle-layer" id="baseLayer" src="assets/custom/scooter/base/default.png" alt="">
+  <img class="vehicle-layer" id="deckLayer" src="assets/custom/scooter/deck/default.png" alt="">
+  <img class="vehicle-layer" id="barLayer" src="assets/custom/scooter/bar/default.png" alt="">
+  <img class="vehicle-layer" id="gripsLayer" src="assets/custom/scooter/grips/default.png" alt="">
+  <img class="vehicle-layer" id="headsetLayer" src="assets/custom/scooter/headset/default.png" alt="">
+  <img class="vehicle-layer" id="wheelsLayer" src="assets/custom/scooter/wheels/default.png" alt="">
+  <img class="vehicle-layer" id="gripLayer" src="assets/custom/scooter/grip/default.png" alt="">
+  <img class="vehicle-layer" id="stickerLayer" src="assets/custom/scooter/sticker/none.png" alt="">
+</div>
+
+<div class="customization-tabs" id="customizationTabs"></div>
+<div class="customization-grid" id="customizationGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="questsPanel">
+    <div class="panel-content-box">
+      <div class="panel-header">
+        <div class="panel-title">📜 Квесты</div>
+        <button class="close-btn" onclick="document.getElementById('questsPanel').style.display='none'">✕</button>
+      </div>
+      <div class="panel-body">
+        <div id="questsList"></div>
+        <p id="questsEmpty">ВСЕ ВЫПОЛНЕНО</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="achievementsPanel">
+    <div class="panel-content-box">
+      <div class="panel-header">
+        <div class="panel-title">🏆 Достижения</div>
+        <button class="close-btn" onclick="document.getElementById('achievementsPanel').style.display='none'">✕</button>
+      </div>
+
+      <div class="panel-body">
+        <div id="achievementsList"></div>
+        <p id="achievementsEmpty">ПУСТО</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="dailyBonusPanel">
+    <div class="panel-content-box">
+      <div class="panel-header">
+        <div class="panel-title">🎁 Бонус</div>
+        <button class="close-btn" onclick="document.getElementById('dailyBonusPanel').style.display='none'">✕</button>
+      </div>
+
+      <div class="panel-body">
+        <div id="dailyBonusInfo"></div>
+        <button class="action-btn" id="claimDailyBonusBtn" style="width:100%; margin-top:12px;">
+          Забрать
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="game-title">🛴 IMBASQUAD TAMA 🛹</div>
+  <div class="footer-note">ИМБА ТАМАГОЧИ — РАЙДЕР В ПАРКЕ</div>
+
+  <div id="startScreen" class="start-screen">
+    <div class="start-card">
+      <h1>СОЗДАЙ<br>СВОЕГО РАЙДЕРА</h1>
+
+      <label>ИМЯ</label>
+      <input type="text" id="riderNameInput" maxlength="20" placeholder="Rider">
+
+      <label>КТО ТЫ:</label>
+      <div class="type-selector">
+        <button type="button" data-type="scooter" class="type-btn active">САМОКАТЕР</button>
+        <button type="button" data-type="skate" class="type-btn">СКЕЙТЕР</button>
+        <button type="button" data-type="roller" class="type-btn">РОЛЛЕР</button>
+      </div>
+
+      <label>ВЫБЕРИ СКИН</label>
+      <div class="skin-carousel">
+        <button class="carousel-btn prev" id="prevSkinBtn" type="button">◀</button>
+        <div class="carousel-image">
+          <img id="carouselSkinImg" src="" alt="Skin preview">
+        </div>
+        <button class="carousel-btn next" id="nextSkinBtn" type="button">▶</button>
+      </div>
+
+      <button class="start-btn" id="startGameBtn" type="button">НАЧАТЬ КАТАТЬСЯ!</button>
+    </div>
+  </div>
+
+  <div id="resetModal" class="reset-modal">
+    <div class="reset-modal-card">
+      <h3>⚠️ ВНИМАНИЕ ⚠️</h3>
+      <p>Вы уверены? Весь прогресс будет потерян!</p>
+      <div class="reset-buttons">
+        <button class="reset-yes" id="resetConfirmYes">ДА, СБРОСИТЬ</button>
+        <button class="reset-no" id="resetConfirmNo">НЕТ</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="warningModal" class="reset-modal">
+    <div class="reset-modal-card">
+      <h3>⚠️ ВНИМАНИЕ ⚠️</h3>
+      <p id="warningMessage">Сообщение</p>
+      <div class="reset-buttons">
+        <button class="reset-no" id="warningCloseBtn">ОК</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="shopModal">
+    <div class="panel-content-box">
+      <div class="panel-header">
+        <div class="panel-title">🛍️ Магазин</div>
+        <button class="close-btn" onclick="document.getElementById('shopModal').style.display='none'">✕</button>
+      </div>
+
+      <div class="panel-body">
+        <div id="shopModalContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="inventoryModal">
+    <div class="panel-content-box">
+      <div class="panel-header">
+        <div class="panel-title">🎒 Инвентарь</div>
+        <button class="close-btn" onclick="document.getElementById('inventoryModal').style.display='none'">✕</button>
+      </div>
+
+      <div class="panel-body">
+        <div id="inventoryModalContent"></div>
+      </div>
+    </div>
+  </div>
+
+<script src="js/balance.js"></script>
+<script src="js/state.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
