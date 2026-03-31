@@ -2564,6 +2564,7 @@ function hideStartScreen() {
 function startGameHandler() {
   const nameInput = document.getElementById('riderNameInput');
   const name = nameInput.value.trim();
+
   if (!name) {
     showWarning('❌ Введите имя райдера!');
     nameInput.focus();
@@ -2571,15 +2572,17 @@ function startGameHandler() {
   }
 
   player.name = name;
-  player.type = currentType;
   player.type = uiState.currentType;
-player.skin =
-  uiState.currentSkinsList[uiState.currentSkinIndex]?.id ||
-  (uiState.currentType === 'scooter'
-    ? 'scooter1'
-    : uiState.currentType === 'skate'
-      ? 'skate1'
-      : 'roller1');
+
+  const fallbackSkin =
+    uiState.currentType === 'scooter'
+      ? 'scooter1'
+      : uiState.currentType === 'skate'
+        ? 'skate1'
+        : 'roller1';
+
+  player.skin =
+    uiState.currentSkinsList?.[uiState.currentSkinIndex]?.id || fallbackSkin;
 
   applySkin(player.type, player.skin);
   saveState();
