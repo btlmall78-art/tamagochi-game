@@ -254,6 +254,9 @@ const trickEnergyText = document.getElementById('trickEnergyText');
 const trickScooterFill = document.getElementById('trickScooterFill');
 const trickScooterText = document.getElementById('trickScooterText');
 const trickComboText = document.getElementById('trickComboText');
+const trickLevelText = document.getElementById('trickLevelText');
+const trickCoinsText = document.getElementById('trickCoinsText');
+const trickXpFill = document.getElementById('trickXpFill');
 const trickHelpText = document.getElementById('trickHelpText');
 const trickResultText = document.getElementById('trickResultText');
 
@@ -611,7 +614,7 @@ function updateTrickOverlayHUD() {
   }
 
   if (trickEnergyText) {
-    trickEnergyText.textContent = `${player.energy}/${player.maxEnergy}`;
+    trickEnergyText.textContent = `⚡ ${player.energy}/${player.maxEnergy}`;
   }
 
   if (trickScooterFill) {
@@ -619,7 +622,7 @@ function updateTrickOverlayHUD() {
   }
 
   if (trickScooterText) {
-    trickScooterText.textContent = `${player.scooter}%`;
+    trickScooterText.textContent = `🛴 ${player.scooter}%`;
   }
 
   if (trickComboText) {
@@ -636,13 +639,26 @@ function updateTrickOverlayHUD() {
     }
   }
 
+  if (trickLevelText) {
+    trickLevelText.textContent = `LVL ${player.level}`;
+  }
+
+  if (trickCoinsText) {
+    trickCoinsText.textContent = `💰 ${player.coins}`;
+  }
+
+  if (trickXpFill) {
+    const percent = player.xpToNext > 0 ? (player.xp / player.xpToNext) * 100 : 0;
+    trickXpFill.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+  }
+
   const energyDrinkEntry = (player.consumables || []).find(c => c.id === 'energy_drink');
   const energyDrinkCount = energyDrinkEntry?.count || 0;
 
   if (trickQuickEnergyBtn) {
     trickQuickEnergyBtn.textContent = energyDrinkCount > 0
-      ? `🥤 ЭНЕРГЕТИК x${energyDrinkCount}`
-      : '🥤 НЕТ ЭНЕРГ.';
+      ? `🥤 x${energyDrinkCount}`
+      : '🥤 x0';
     trickQuickEnergyBtn.disabled = energyDrinkCount <= 0 || player.energy >= player.maxEnergy;
   }
 
@@ -2544,10 +2560,10 @@ function openStartScreen(mode = 'create') {
   });
 
   const skinIds = uiState.currentType === 'scooter'
-    ? ['scooter1', 'scooter2', 'scooter3']
-    : currentType === 'skate'
-      ? ['skate1', 'skate2', 'skate3']
-      : ['roller1', 'roller2', 'roller3'];
+  ? ['scooter1', 'scooter2', 'scooter3']
+  : uiState.currentType === 'skate'
+    ? ['skate1', 'skate2', 'skate3']
+    : ['roller1', 'roller2', 'roller3'];
 
   uiState.currentSkinIndex = Math.max(0, skinIds.indexOf(player.skin));
   renderSkinCarousel();
@@ -2573,6 +2589,9 @@ function startGameHandler() {
 
   player.name = name;
   player.type = uiState.currentType;
+
+  // ВАЖНО: гарантируем, что список скинов актуален
+  renderSkinCarousel();
 
   const fallbackSkin =
     uiState.currentType === 'scooter'
