@@ -30,7 +30,9 @@
   </div>
 
   <div class="level-box">
-    <div class="level-text" id="levelText">УРОВЕНЬ 1</div>
+<div class="level-text" id="levelText">
+  <span id="playerNameInline">РАЙДЕР</span> • УРОВЕНЬ 1
+</div>
     <div class="xp-bar-container">
       <div class="xp-bar-fill" id="xpBarFill"></div>
     </div>
@@ -123,12 +125,6 @@
   </button>
 </div>
 
-  <div class="mini-game" id="miniGame">
-    <div class="mini-game-bg"></div>
-    <div class="green-zone" id="greenZone"></div>
-    <div class="runner" id="runner"></div>
-  </div>
-
 <div class="panel" id="workshopPanel">
   <div class="panel-content-box">
     <div class="panel-header workshop-panel-header">
@@ -155,8 +151,8 @@
             </button>
 
             <div class="repair-options" id="repairOptions">
-              <button id="repairCoinsBtn" type="button" data-tooltip="Починить транспорт за монеты">💰 За монеты (50)</button>
-              <button id="repairXPBtn" type="button" data-tooltip="Починить транспорт за опыт">✨ За XP (50)</button>
+              <button id="repairCoinsBtn" type="button" data-tooltip="Починить транспорт за монеты">💰 За монеты (35)</button>
+              <button id="repairXPBtn" type="button" data-tooltip="Починить транспорт за опыт">✨ За XP (70)</button>
             </div>
           </div>
         </div>
@@ -337,49 +333,85 @@
   <div class="trick-overlay-backdrop" id="trickOverlayBackdrop"></div>
 
   <div class="trick-modal" id="trickModal">
-    <div class="trick-modal-header">
-      <div class="trick-modal-title">ТРЮК 🛴</div>
-      <button class="trick-close-btn" id="trickCloseBtn" type="button">✕</button>
-    </div>
+    <div class="trick-topbar">
+      <div class="trick-topbar-left">ТРЮК 🛴</div>
 
-    <div class="trick-hud">
-      <div class="trick-hud-item">
-        <div class="trick-hud-label">⚡ ЭНЕРГИЯ</div>
-        <div class="trick-hud-bar">
-          <div class="trick-hud-fill trick-hud-fill-energy" id="trickEnergyFill"></div>
-        </div>
-        <div class="trick-hud-value" id="trickEnergyText">100/100</div>
+      <div class="trick-topbar-center">
+        <span class="trick-level-text" id="trickLevelText">LVL 1</span>
       </div>
 
-      <div class="trick-hud-item">
-        <div class="trick-hud-label">🛴 САМОКАТ</div>
-        <div class="trick-hud-bar">
-          <div class="trick-hud-fill trick-hud-fill-scooter" id="trickScooterFill"></div>
-        </div>
-        <div class="trick-hud-value" id="trickScooterText">100%</div>
+      <div class="trick-topbar-right">
+        <span class="trick-coins-text" id="trickCoinsText">💰 0</span>
+        <button class="trick-close-btn" id="trickCloseBtn" type="button">✕</button>
       </div>
-
-      <div class="trick-hud-combo" id="trickComboText">🔥 x0</div>
     </div>
+
+    <div class="trick-xp-strip">
+      <div class="trick-xp-fill" id="trickXpFill"></div>
+    </div>
+
+    <div class="trick-status-row">
+      <div class="trick-status-item" id="trickEnergyText">⚡ 100/100</div>
+      <div class="trick-status-item" id="trickScooterText">🛴 100%</div>
+      <div class="trick-status-item" id="trickComboText">🔥 x0</div>
+    </div>
+
+    <div class="trick-mini-bars">
+      <div class="trick-mini-bar">
+        <div class="trick-mini-bar-fill trick-mini-bar-energy" id="trickEnergyFill"></div>
+      </div>
+      <div class="trick-mini-bar">
+        <div class="trick-mini-bar-fill trick-mini-bar-scooter" id="trickScooterFill"></div>
+      </div>
+    </div>
+
+    <div class="trick-divider"></div>
 
     <div class="trick-modal-body">
-      <div class="trick-mini-game" id="trickMiniGame">
-      <div class="trick-green-zone" id="trickGreenZone"></div>
-      <div class="trick-perfect-zone" id="trickPerfectZone"></div>
-      <div class="trick-runner" id="trickRunner"></div>
-</div>
+        <div class="difficulty-bar">
+            <button class="difficulty-btn active" data-difficulty="beginner">BEGINNER</button>
+            <button class="difficulty-btn" data-difficulty="intermediate">INTERMEDIATE</button>
+            <button class="difficulty-btn" data-difficulty="advanced">ADVANCED</button>
+            <button class="difficulty-btn" data-difficulty="pro">PRO</button>
+        </div>
+    <div class="scene" id="scene">
+      <div class="scene-flash" id="sceneFlash"></div>
 
-      <div class="trick-help-text" id="trickHelpText">
-        ТАПНИ ПО ПОЛОСЕ, ЧТОБЫ ОСТАНОВИТЬ БЕГУНОК
+      <div class="bg-layer bg-sky"></div>
+      <div class="bg-layer bg-far"></div>
+      <div class="bg-layer bg-mid"></div>
+      <div class="bg-layer bg-ground"></div>
+
+      <div class="timing-bar" id="timingBar">
+        <div class="timing-bar-good"></div>
+        <div class="timing-bar-perfect"></div>
+        <div class="timing-bar-marker" id="timingBarMarker"></div>
       </div>
 
-      <div class="trick-result-text" id="trickResultText"></div>
+      <div class="ramp" id="ramp"></div>
+
+      <div class="rider-zone">
+        <div class="rider-shadow" id="riderShadow"></div>
+        <div class="rider sprite-ride" id="rider"></div>
+      </div>
+
+      <div class="result-popup" id="resultPopup"></div>
+      <div class="swipe-hint" id="swipeHint">
+        <span class="swipe-arrow swipe-arrow-left">←</span>
+        <span class="swipe-hint-text">SWIPE!</span>
+        <span class="swipe-arrow swipe-arrow-up">↑</span>
+        <span class="swipe-arrow swipe-arrow-right">→</span>
+        <span class="swipe-arrow swipe-arrow-down">↓</span>
+      </div>
     </div>
+    </div>
+
+    <div class="trick-divider"></div>
 
     <div class="trick-quick-actions">
       <button class="trick-quick-btn" id="trickQuickRestBtn" type="button">😴 ОТДОХНУТЬ</button>
-      <button class="trick-quick-btn" id="trickQuickEnergyBtn" type="button">🥤 ЭНЕРГЕТИК</button>
-      <button class="trick-quick-btn" id="trickQuickRepairBtn" type="button">🔧 ПОЧИНИТЬ</button>
+      <button class="trick-quick-btn" id="trickQuickEnergyBtn" type="button">🥤 x0</button>
+      <button class="trick-quick-btn" id="trickQuickRepairBtn" type="button">🔧 РЕМОНТ</button>
     </div>
   </div>
 </div>

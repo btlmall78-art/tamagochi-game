@@ -57,6 +57,7 @@ const shopItems = [
     name: 'КЕПКА',
     emoji: '🧢',
     price: 30,
+    unlockLevel: 1,
     bonus: { startCombo: 2 },
     desc: '+2 к начальному комбо'
   },
@@ -67,6 +68,7 @@ const shopItems = [
     name: 'ХУДИ',
     emoji: '🧥',
     price: 50,
+    unlockLevel: 2,
     bonus: { maxEnergy: 20 },
     desc: '+20 к макс. энергии'
   },
@@ -77,6 +79,7 @@ const shopItems = [
     name: 'ШЛЕМ',
     emoji: '⛑️',
     price: 35,
+    unlockLevel: 3,
     bonus: { trickEnergyDiscount: 0.15 },
     desc: '-15% расход энергии на трюки'
   },
@@ -87,6 +90,7 @@ const shopItems = [
     name: 'КУРТКА',
     emoji: '🧥',
     price: 60,
+    unlockLevel: 4,
     bonus: { coinsBonus: 0.10 },
     desc: '+10% монет'
   },
@@ -97,6 +101,7 @@ const shopItems = [
     name: 'ЭНЕРГЕТИК',
     emoji: '🥤',
     price: 15,
+    unlockLevel: 2,
     effect: { energy: 25 },
     desc: '+25 энергии'
   },
@@ -107,10 +112,13 @@ const shopItems = [
     name: 'СОК',
     emoji: '🧃',
     price: 12,
+    unlockLevel: 1,
     effect: { drive: 15 },
     desc: '+15 драйва'
   }
 ];
+
+
 const workshopItems = [
   {
     id: 'scooter_deck_red',
@@ -120,6 +128,7 @@ const workshopItems = [
     variant: 'red',
     name: 'Красная дека',
     price: 40,
+    unlockLevel: 1,
     preview: 'assets/custom/scooter/cards/deck_red.png'
   },
   {
@@ -130,6 +139,7 @@ const workshopItems = [
     variant: 'black',
     name: 'Чёрный руль',
     price: 35,
+    unlockLevel: 2,
     preview: 'assets/custom/scooter/cards/bar_black.png'
   },
   {
@@ -140,6 +150,7 @@ const workshopItems = [
     variant: 'red',
     name: 'Красные грипсы',
     price: 25,
+    unlockLevel: 2,
     preview: 'assets/custom/scooter/cards/grips_red.png'
   },
   {
@@ -150,6 +161,7 @@ const workshopItems = [
     variant: 'gold',
     name: 'Золотая рулевая',
     price: 35,
+    unlockLevel: 3,
     preview: 'assets/custom/scooter/cards/headset_gold.png'
   },
   {
@@ -160,6 +172,7 @@ const workshopItems = [
     variant: 'neon',
     name: 'Неоновые колёса',
     price: 50,
+    unlockLevel: 5,
     preview: 'assets/custom/scooter/cards/wheels_neon.png'
   },
   {
@@ -170,6 +183,7 @@ const workshopItems = [
     variant: 'flame',
     name: 'Шкурка Flame',
     price: 45,
+    unlockLevel: 4,
     preview: 'assets/custom/scooter/cards/grip_flame.png'
   },
   {
@@ -180,6 +194,7 @@ const workshopItems = [
     variant: 'star',
     name: 'Наклейка Star',
     price: 20,
+    unlockLevel: 1,
     preview: 'assets/custom/scooter/cards/sticker_star.png'
   },
 
@@ -191,6 +206,7 @@ const workshopItems = [
     value: 1,
     name: 'Усиленная прочность I',
     price: 80,
+    unlockLevel: 2,
     desc: 'Меньше износ самоката'
   },
   {
@@ -201,6 +217,7 @@ const workshopItems = [
     value: 1,
     name: 'Экономия энергии I',
     price: 75,
+    unlockLevel: 3,
     desc: 'Меньше расход энергии'
   },
   {
@@ -211,6 +228,7 @@ const workshopItems = [
     value: 1,
     name: 'Бонус наград I',
     price: 90,
+    unlockLevel: 5,
     desc: '+ больше монет и XP'
   }
 ];
@@ -221,42 +239,19 @@ let activeElement = null;
 let currentTooltip = null;
 let tooltipTimeout = null;
 let tooltipHideTimeout = null;
-let trickRoundActive = false;
 
-let trickRoundState = {
-  animationId: null,
-  position: 0,
-  direction: 1,
-  speed: 520,
-  lastTimestamp: 0,
-  greenLeft: 0,
-  greenWidth: 0,
-  perfectLeft: 0,
-  perfectWidth: 36,
-  maxPosition: 0,
-  easeNextRound: false
-};
-
-const miniGame = document.getElementById('miniGame');
-const runner = document.getElementById('runner');
-const greenZone = document.getElementById('greenZone');
 const trickOverlay = document.getElementById('trickOverlay');
 const trickOverlayBackdrop = document.getElementById('trickOverlayBackdrop');
 const trickModal = document.getElementById('trickModal');
-const trickMiniGame = document.getElementById('trickMiniGame');
-const trickRunner = document.getElementById('trickRunner');
-const trickGreenZone = document.getElementById('trickGreenZone');
-const trickPerfectZone = document.getElementById('trickPerfectZone');
 const trickCloseBtn = document.getElementById('trickCloseBtn');
-
 const trickEnergyFill = document.getElementById('trickEnergyFill');
 const trickEnergyText = document.getElementById('trickEnergyText');
 const trickScooterFill = document.getElementById('trickScooterFill');
 const trickScooterText = document.getElementById('trickScooterText');
 const trickComboText = document.getElementById('trickComboText');
-const trickHelpText = document.getElementById('trickHelpText');
-const trickResultText = document.getElementById('trickResultText');
-
+const trickLevelText = document.getElementById('trickLevelText');
+const trickCoinsText = document.getElementById('trickCoinsText');
+const trickXpFill = document.getElementById('trickXpFill');
 const trickQuickRestBtn = document.getElementById('trickQuickRestBtn');
 const trickQuickEnergyBtn = document.getElementById('trickQuickEnergyBtn');
 const trickQuickRepairBtn = document.getElementById('trickQuickRepairBtn');
@@ -278,6 +273,16 @@ const warningModalElem = document.getElementById('warningModal');
 const warningCloseBtn = document.getElementById('warningCloseBtn');
 const startBtn = document.getElementById('startGameBtn');
 const statsToggleBtn = document.getElementById('statsToggleBtn');
+
+const scene = document.getElementById('scene');
+const rider = document.getElementById('rider');
+const riderShadow = document.getElementById('riderShadow');
+const resultPopup = document.getElementById('resultPopup');
+const timingBar = document.getElementById('timingBar');
+const timingBarMarker = document.getElementById('timingBarMarker');
+const swipeHint = document.getElementById('swipeHint');
+const sceneFlash = document.getElementById('sceneFlash');
+
 const topTabButtons = Array.from(document.querySelectorAll('.top-tab-btn'));
 
 function resetUIStateFromPlayer() {
@@ -545,64 +550,6 @@ function isTrickOverlayOpen() {
   return !!(trickOverlay && trickOverlay.classList.contains('visible'));
 }
 
-function stopTrickRoundAnimation() {
-  if (trickRoundState.animationId) {
-    cancelAnimationFrame(trickRoundState.animationId);
-    trickRoundState.animationId = null;
-  }
-
-  if (runnerInterval) {
-    clearInterval(runnerInterval);
-    runnerInterval = null;
-  }
-
-  trickRoundActive = false;
-}
-
-function getTrickDifficultySettings() {
-  const combo = player.combo || 0;
-
-  let speed = 520;
-  let greenMin = 100;
-  let greenMax = 160;
-  let perfectWidth = 40;
-
-  if (combo >= 3) {
-    speed = 580;
-    greenMin = 90;
-    greenMax = 145;
-    perfectWidth = 36;
-  }
-
-  if (combo >= 6) {
-    speed = 650;
-    greenMin = 80;
-    greenMax = 130;
-    perfectWidth = 32;
-  }
-
-  if (combo >= 10) {
-    speed = 730;
-    greenMin = 72;
-    greenMax = 115;
-    perfectWidth = 28;
-  }
-
-  if (trickRoundState.easeNextRound) {
-    speed = Math.max(460, speed - 90);
-    greenMin += 18;
-    greenMax += 18;
-    perfectWidth += 6;
-  }
-
-  return {
-    speed,
-    greenMin,
-    greenMax,
-    perfectWidth
-  };
-}
-
 function updateTrickOverlayHUD() {
   if (!trickOverlay) return;
 
@@ -611,7 +558,7 @@ function updateTrickOverlayHUD() {
   }
 
   if (trickEnergyText) {
-    trickEnergyText.textContent = `${player.energy}/${player.maxEnergy}`;
+    trickEnergyText.textContent = `⚡ ${player.energy}/${player.maxEnergy}`;
   }
 
   if (trickScooterFill) {
@@ -619,7 +566,7 @@ function updateTrickOverlayHUD() {
   }
 
   if (trickScooterText) {
-    trickScooterText.textContent = `${player.scooter}%`;
+    trickScooterText.textContent = `🛴 ${player.scooter}%`;
   }
 
   if (trickComboText) {
@@ -636,13 +583,26 @@ function updateTrickOverlayHUD() {
     }
   }
 
+  if (trickLevelText) {
+    trickLevelText.textContent = `LVL ${player.level}`;
+  }
+
+  if (trickCoinsText) {
+    trickCoinsText.textContent = `💰 ${player.coins}`;
+  }
+
+  if (trickXpFill) {
+    const percent = player.xpToNext > 0 ? (player.xp / player.xpToNext) * 100 : 0;
+    trickXpFill.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+  }
+
   const energyDrinkEntry = (player.consumables || []).find(c => c.id === 'energy_drink');
   const energyDrinkCount = energyDrinkEntry?.count || 0;
 
   if (trickQuickEnergyBtn) {
     trickQuickEnergyBtn.textContent = energyDrinkCount > 0
-      ? `🥤 ЭНЕРГЕТИК x${energyDrinkCount}`
-      : '🥤 НЕТ ЭНЕРГ.';
+      ? `🥤 x${energyDrinkCount}`
+      : '🥤 x0';
     trickQuickEnergyBtn.disabled = energyDrinkCount <= 0 || player.energy >= player.maxEnergy;
   }
 
@@ -655,158 +615,394 @@ function updateTrickOverlayHUD() {
   }
 }
 
+
+let arcadeLoopId = null;
+let arcadeLastTime = 0;
+let arcadeRoundActive = false;
+let arcadeRoundResolved = false;
+let arcadeMarkerPosition = 0;
+let arcadeMarkerDirection = 1;
+const ARCADE_MARKER_SPEED = 0.00115;
+const ARCADE_NEXT_ROUND_DELAY = 850;
+
+let currentDifficulty = 'beginner';
+let selectedDirection = 'base';
+let trickInputOpen = false;
+
+const difficultyButtons = Array.from(document.querySelectorAll('.difficulty-btn'));
+
+const TRICK_SETS = {
+  beginner: { base: 'BUNNY HOP', left: 'NO FOOTER', right: 'NO HANDER', up: '180', down: 'MANUAL' },
+  intermediate: { base: 'BARSPIN', left: 'TAILWHIP', right: 'HEELWHIP', up: '360', down: 'INDY GRAB' },
+  advanced: { base: 'DOUBLE BARSPIN', left: 'DOUBLE TAILWHIP', right: 'VARIAL HEELWHIP', up: '540', down: 'SMITH' },
+  pro: { base: 'BACKFLIP', left: 'FLAIR', right: 'BRI FLIP', up: 'CASH ROLL', down: 'ROTOR WHIP' }
+};
+
+function arcadeClamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function showResult(text) {
+  console.log('showResult called with:', text, resultPopup);
+  if (!resultPopup) return;
+  resultPopup.textContent = text;
+  resultPopup.classList.add('show');
+  setTimeout(() => resultPopup.classList.remove('show'), 650);
+}
+
+function showSwipeHint() {
+  console.log('swipeHint element:', swipeHint);
+  if (swipeHint) swipeHint.classList.add('show');
+}
+
+function hideSwipeHint() {
+  if (swipeHint) swipeHint.classList.remove('show');
+}
+
+function setDifficulty(nextDifficulty) {
+  currentDifficulty = nextDifficulty;
+  difficultyButtons.forEach((button) => {
+    button.classList.toggle('active', button.dataset.difficulty === nextDifficulty);
+  });
+}
+
+function flashScene(type = 'good') {
+  if (!sceneFlash) return;
+  sceneFlash.style.background =
+    type === 'perfect'
+      ? 'rgba(255,255,180,0.72)'
+      : type === 'fail'
+        ? 'rgba(255,80,80,0.58)'
+        : 'rgba(255,255,255,0.55)';
+  sceneFlash.classList.add('active');
+  setTimeout(() => sceneFlash.classList.remove('active'), 110);
+}
+
+function shakeScene() {
+  if (!scene) return;
+  scene.classList.remove('is-shaking');
+  void scene.offsetWidth;
+  scene.classList.add('is-shaking');
+}
+
+function setRiderSprite(state) {
+  if (!rider) return;
+  rider.classList.remove('sprite-ride', 'sprite-crouch', 'sprite-jump', 'sprite-trick');
+  if (state === 'crouch') rider.classList.add('sprite-crouch');
+  else if (state === 'jump') rider.classList.add('sprite-jump');
+  else if (state === 'trick') rider.classList.add('sprite-trick');
+  else rider.classList.add('sprite-ride');
+}
+
+function setRiderVisual(y = 0, shadowScale = 1, shadowOpacity = 0.28) {
+  if (rider) rider.style.transform = `translateX(-50%) translateY(${y}px)`;
+  if (riderShadow) {
+    riderShadow.style.transform = `translateX(-50%) scaleX(${shadowScale})`;
+    riderShadow.style.opacity = String(shadowOpacity);
+  }
+}
+
+function resetRider() {
+  setRiderSprite('ride');
+  setRiderVisual(0, 1, 0.28);
+  hideSwipeHint();
+}
+
+function updateMarkerVisual() {
+  if (!timingBar || !timingBarMarker) return;
+  const barWidth = timingBar.clientWidth;
+  const markerWidth = timingBarMarker.clientWidth || 10;
+  const maxX = Math.max(0, barWidth - markerWidth);
+  timingBarMarker.style.transform = `translateX(${arcadeMarkerPosition * maxX}px)`;
+}
+
+function resetMarker() {
+  arcadeMarkerPosition = 0;
+  arcadeMarkerDirection = 1;
+  updateMarkerVisual();
+}
+
+function stopArcadeLoop() {
+  if (arcadeLoopId) {
+    cancelAnimationFrame(arcadeLoopId);
+    arcadeLoopId = null;
+  }
+  arcadeLastTime = 0;
+}
+
+function canStartArcadeRound() {
+  if (player.isSleeping) {
+    showResult('💤 ОТДОХНИ');
+    return false;
+  }
+  if (player.energy < BALANCE.trickEnergyCost) {
+    showResult('⚡ НЕТ ЭНЕРГИИ');
+    return false;
+  }
+  if (player.scooter <= 0) {
+    showResult('🔧 НУЖЕН РЕМОНТ');
+    return false;
+  }
+  return true;
+}
+
+function getArcadeTimingResult() {
+  if (arcadeMarkerPosition >= 0.46 && arcadeMarkerPosition <= 0.54) return 'perfect';
+  if (arcadeMarkerPosition >= 0.34 && arcadeMarkerPosition <= 0.66) return 'good';
+  return 'fail';
+}
+
+function applyArcadeRoundResult(result) {
+  let xpGain = 0;
+  let coinsGain = 0;
+  let energyCost = BALANCE.trickEnergyCost;
+  let scooterWear = 0;
+
+  if (player.equipped?.head === 'helmet') {
+    energyCost = Math.floor(energyCost * 0.85);
+  }
+  const efficiency = player.upgrades?.scooter?.efficiency || 0;
+  energyCost = Math.max(1, Math.floor(energyCost * Math.max(0.5, 1 - efficiency * 0.1)));
+
+  if (result === 'perfect') {
+    xpGain = BALANCE.trickBaseXP + 4;
+    coinsGain = BALANCE.trickBaseCoins + 3;
+    scooterWear = 6;
+    player.combo += 1;
+    player.drive = Math.min(100, player.drive + 12);
+    player.quests.trickStreak = (player.quests.trickStreak || 0) + 1;
+    player.quests.trickStreakCount = (player.quests.trickStreakCount || 0) + 1;
+  } else if (result === 'good') {
+    xpGain = BALANCE.trickBaseXP;
+    coinsGain = BALANCE.trickBaseCoins;
+    scooterWear = 8;
+    player.combo += 1;
+    player.drive = Math.min(100, player.drive + 8);
+    player.quests.trickStreak = (player.quests.trickStreak || 0) + 1;
+    player.quests.trickStreakCount = (player.quests.trickStreakCount || 0) + 1;
+  } else {
+    scooterWear = BALANCE.penaltyScooter;
+    player.combo = 0;
+    player.drive = Math.max(0, player.drive - 25);
+    player.quests.trickStreak = 0;
+    player.coins = Math.max(0, player.coins - BALANCE.penaltyCoins);
+  }
+
+  const durability = player.upgrades?.scooter?.durability || 0;
+  scooterWear = Math.max(1, Math.floor(scooterWear * Math.max(0.5, 1 - durability * 0.15)));
+
+  player.energy = Math.max(0, player.energy - energyCost);
+  player.scooter = Math.max(0, player.scooter - scooterWear);
+
+  if (xpGain > 0) {
+    player.xp += xpGain;
+    showTrickEffect(`+${xpGain} XP`);
+  }
+  if (coinsGain > 0) {
+    const rewardMult = getCoinsRewardMultiplier();
+    const finalCoins = Math.max(1, Math.floor(coinsGain * rewardMult));
+    player.coins += finalCoins;
+    showTrickEffect(`💰 +${finalCoins}`);
+  }
+
+  processLevelUps();
+  finalizePlayerUpdate();
+  updateTrickOverlayHUD();
+}
+
+function animateArcadeSuccess(result) {
+  selectedDirection = 'base';
+  trickInputOpen = true;
+
+  showSwipeHint();
+  setRiderSprite('crouch');
+  setRiderVisual(10, 1.12, 0.36);
+
+  setTimeout(() => {
+    setRiderSprite('jump');
+    setRiderVisual(result === 'perfect' ? -68 : -58, 0.84, 0.24);
+  }, 110);
+
+  setTimeout(() => {
+    setRiderSprite('trick');
+    setRiderVisual(result === 'perfect' ? -96 : -82, 0.70, 0.16);
+  }, 240);
+
+  setTimeout(() => {
+    trickInputOpen = false;
+    hideSwipeHint();
+  }, 700);
+
+  setTimeout(() => {
+    const trickName =
+      (TRICK_SETS[currentDifficulty] && TRICK_SETS[currentDifficulty][selectedDirection]) ||
+      TRICK_SETS[currentDifficulty].base;
+
+    setRiderSprite('ride');
+    setRiderVisual(8, 1.08, 0.34);
+    flashScene(result === 'perfect' ? 'perfect' : 'good');
+    showResult(`${result === 'perfect' ? 'PERFECT' : 'GOOD'} • ${trickName}`);
+    shakeScene();
+  }, 650);
+
+  setTimeout(() => {
+    resetRider();
+  }, 820);
+}
+
+function animateArcadeFail() {
+  hideSwipeHint();
+  flashScene('fail');
+  shakeScene();
+  showResult('MISS');
+  resetRider();
+}
+
+function scheduleNextArcadeRound() {
+  setTimeout(() => {
+    if (isTrickOverlayOpen()) startArcadeRound();
+  }, ARCADE_NEXT_ROUND_DELAY);
+}
+
+function handleArcadeTap() {
+  if (!isTrickOverlayOpen()) return;
+  if (!arcadeRoundActive) {
+    startArcadeRound();
+    return;
+  }
+  if (arcadeRoundResolved) return;
+
+  arcadeRoundResolved = true;
+  arcadeRoundActive = false;
+  const result = getArcadeTimingResult();
+  stopArcadeLoop();
+  applyArcadeRoundResult(result);
+
+if (result === 'fail') {
+  console.log('CALLING FAIL', result);
+  animateArcadeFail();
+} else {
+  console.log('CALLING SUCCESS', result);
+  animateArcadeSuccess(result);
+}
+
+  scheduleNextArcadeRound();
+}
+
+function updateArcadeWorld(delta) {
+  if (!arcadeRoundActive || arcadeRoundResolved) return;
+  arcadeMarkerPosition += arcadeMarkerDirection * delta * ARCADE_MARKER_SPEED;
+  if (arcadeMarkerPosition >= 1) {
+    arcadeMarkerPosition = 1;
+    arcadeMarkerDirection = -1;
+  } else if (arcadeMarkerPosition <= 0) {
+    arcadeMarkerPosition = 0;
+    arcadeMarkerDirection = 1;
+  }
+  updateMarkerVisual();
+}
+
+function arcadeGameLoop(timestamp) {
+  if (!arcadeLastTime) arcadeLastTime = timestamp;
+  const delta = timestamp - arcadeLastTime;
+  arcadeLastTime = timestamp;
+  updateArcadeWorld(delta);
+  if (arcadeRoundActive) {
+    arcadeLoopId = requestAnimationFrame(arcadeGameLoop);
+  }
+}
+
+function startArcadeLoop() {
+  if (arcadeLoopId) {
+    cancelAnimationFrame(arcadeLoopId);
+    arcadeLoopId = null;
+  }
+  arcadeLastTime = 0;
+  arcadeLoopId = requestAnimationFrame(arcadeGameLoop);
+}
+
+function startArcadeRound() {
+  if (!isTrickOverlayOpen()) return;
+  if (!canStartArcadeRound()) {
+    arcadeRoundActive = false;
+    arcadeRoundResolved = true;
+    updateTrickOverlayHUD();
+    return;
+  }
+  arcadeRoundResolved = false;
+  arcadeRoundActive = true;
+  resetMarker();
+  resetRider();
+  startArcadeLoop();
+}
+
 function openTrickOverlay() {
   if (!trickOverlay) return;
-
-  stopTrickRoundAnimation();
-  
   trickOverlay.classList.add('visible');
   document.body.classList.add('trick-overlay-open');
   activeElement = trickOverlay;
-  trickRoundActive = false;
-
-  if (trickResultText) {
-    trickResultText.textContent = '';
-  }
-
-  if (trickHelpText) {
-    const combo = player.combo || 0;
-
-    if (combo >= 10) {
-      trickHelpText.textContent = '🔥 ЖЁСТКИЙ ТЕМП! ЛОВИ PERFECT';
-    } else if (combo >= 6) {
-      trickHelpText.textContent = '⚡ БЫСТРЕЕ! ДЕРЖИ РИТМ';
-    } else if (combo >= 3) {
-      trickHelpText.textContent = '✨ СЕРИЯ ПОШЛА — НЕ СБЕЙСЯ';
-    } else {
-      trickHelpText.textContent = 'ТАПНИ ПО ПОЛОСЕ, ЧТОБЫ ОСТАНОВИТЬ БЕГУНОК';
-    }
-  }
-
   updateTrickOverlayHUD();
-
-  requestAnimationFrame(() => {
-    startTrickRound();
-  });
+  resetRider();
+  resetMarker();
+  requestAnimationFrame(startArcadeRound);
 }
 
 function closeTrickOverlay() {
   if (!trickOverlay) return;
 
-  stopTrickRoundAnimation();
+  arcadeRoundActive = false;
+  arcadeRoundResolved = true;
+  stopArcadeLoop();
+  hideSwipeHint();
 
   trickOverlay.classList.remove('visible');
   document.body.classList.remove('trick-overlay-open');
   activeElement = null;
 
-  if (trickResultText) {
-    trickResultText.textContent = '';
-  }
+  resetRider();
+  resetMarker();
 }
 
-function startTrickRound() {
-  if (!isTrickOverlayOpen()) return;
-  if (!trickMiniGame || !trickRunner || !trickGreenZone) return;
+let touchStartX = 0;
+let touchStartY = 0;
 
-  if (player.isSleeping) {
-    if (trickResultText) trickResultText.textContent = '💤 НУЖЕН ОТДЫХ';
-    updateTrickOverlayHUD();
-    return;
-  }
+if (scene) {
+  scene.addEventListener('click', handleArcadeTap);
 
-  if (player.scooter === 0) {
-    if (trickResultText) trickResultText.textContent = '🔧 САМОКАТ СЛОМАН';
-    updateTrickOverlayHUD();
-    return;
-  }
+  scene.addEventListener('touchstart', (e) => {
+    const touch = e.changedTouches[0];
+    if (!touch) return;
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+  }, { passive: true });
 
-  if (player.energy < BALANCE.trickEnergyCost) {
-    if (trickResultText) trickResultText.textContent = '⚡ НЕДОСТАТОЧНО ЭНЕРГИИ';
-    updateTrickOverlayHUD();
-    return;
-  }
+  scene.addEventListener('touchend', (e) => {
+    const touch = e.changedTouches[0];
+    if (!touch) return;
 
-  stopTrickRoundAnimation();
+    const dx = touch.clientX - touchStartX;
+    const dy = touch.clientY - touchStartY;
+    const isSwipe = Math.abs(dx) > 20 || Math.abs(dy) > 20;
 
-  if (trickResultText) {
-    trickResultText.textContent = '';
-    trickResultText.className = 'trick-result-text';
-  }
-
-  if (trickMiniGame) {
-    trickMiniGame.classList.remove('round-start');
-    void trickMiniGame.offsetWidth;
-    trickMiniGame.classList.add('round-start');
-  }
-
-  setTimeout(() => {
-    trickMiniGame?.classList.remove('round-start');
-  }, 180);
-  
-  if (trickHelpText) {
-    trickHelpText.textContent = 'ТАПНИ ПО ПОЛОСЕ, ЧТОБЫ ОСТАНОВИТЬ БЕГУНОК';
-  }
-
-  const gameWidth = trickMiniGame.offsetWidth;
-  const runnerWidth = trickRunner.offsetWidth;
-  if (gameWidth === 0 || runnerWidth === 0) return;
-
-  const difficulty = getTrickDifficultySettings();
-  trickRoundState.easeNextRound = false;
-
-  const greenWidth =
-    difficulty.greenMin + Math.random() * (difficulty.greenMax - difficulty.greenMin);
-
-  const greenLeft = Math.random() * (gameWidth - greenWidth);
-  const perfectWidth = difficulty.perfectWidth;
-  const perfectLeft = greenLeft + (greenWidth - perfectWidth) / 2;
-  const maxPosition = gameWidth - runnerWidth;
-
-  trickRoundState.position = 0;
-  trickRoundState.direction = 1;
-  trickRoundState.speed = difficulty.speed;
-  trickRoundState.lastTimestamp = performance.now();
-  trickRoundState.greenLeft = greenLeft;
-  trickRoundState.greenWidth = greenWidth;
-  trickRoundState.perfectLeft = perfectLeft;
-  trickRoundState.perfectWidth = perfectWidth;
-  trickRoundState.maxPosition = maxPosition;
-
-  trickGreenZone.style.left = `${greenLeft}px`;
-  trickGreenZone.style.width = `${greenWidth}px`;
-
-  if (trickPerfectZone) {
-    trickPerfectZone.style.left = `${perfectLeft}px`;
-    trickPerfectZone.style.width = `${perfectWidth}px`;
-  }
-
-  trickRunner.style.left = '0px';
-
-  trickRoundActive = true;
-
-  function step(timestamp) {
-    if (!isTrickOverlayOpen()) return;
-    if (!trickRoundActive) return;
-
-    const deltaSeconds = Math.min(0.032, (timestamp - trickRoundState.lastTimestamp) / 1000);
-    trickRoundState.lastTimestamp = timestamp;
-
-    trickRoundState.position += trickRoundState.direction * trickRoundState.speed * deltaSeconds;
-
-    if (trickRoundState.position <= 0) {
-      trickRoundState.position = 0;
-      trickRoundState.direction = 1;
-    } else if (trickRoundState.position >= trickRoundState.maxPosition) {
-      trickRoundState.position = trickRoundState.maxPosition;
-      trickRoundState.direction = -1;
+    if (trickInputOpen && isSwipe) {
+      if (Math.abs(dx) > Math.abs(dy)) {
+        selectedDirection = dx > 0 ? 'right' : 'left';
+      } else {
+        selectedDirection = dy > 0 ? 'down' : 'up';
+      }
+      return;
     }
 
-    trickRunner.style.left = `${trickRoundState.position}px`;
-    trickRoundState.animationId = requestAnimationFrame(step);
-  }
-
-  trickRoundState.animationId = requestAnimationFrame(step);
+    e.preventDefault();
+    handleArcadeTap();
+  }, { passive: false });
 }
+
+difficultyButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    setDifficulty(button.dataset.difficulty);
+  });
+});
 
 function quickRestFromTrickOverlay() {
   if (player.energy >= player.maxEnergy) {
@@ -816,24 +1012,13 @@ function quickRestFromTrickOverlay() {
   }
 
   player.energy = Math.min(player.maxEnergy, player.energy + BALANCE.restEnergyGain);
-  player.drive = Math.max(0, player.drive - 10);
+  player.drive = Math.max(0, player.drive - 18);
   if (player.energy > 0) player.isSleeping = false;
 
   showTrickEffect(`😴 +${BALANCE.restEnergyGain}⚡`);
   finalizePlayerUpdate();
   updateTrickOverlayHUD();
 
-  if (isTrickOverlayOpen() && !trickRoundActive && !runnerInterval) {
-    setTimeout(() => startTrickRound(), 150);
-  }
-
-  player.energy = Math.min(player.maxEnergy, player.energy + BALANCE.restEnergyGain);
-  player.drive = Math.max(0, player.drive - 10);
-  if (player.energy > 0) player.isSleeping = false;
-
-  showTrickEffect(`😴 +${BALANCE.restEnergyGain}⚡`);
-  finalizePlayerUpdate();
-  updateTrickOverlayHUD();
 }
 
 function quickUseEnergyDrinkFromTrickOverlay() {
@@ -855,20 +1040,6 @@ function quickUseEnergyDrinkFromTrickOverlay() {
   finalizePlayerUpdate();
   updateTrickOverlayHUD();
 
-  if (isTrickOverlayOpen() && !trickRoundActive && !runnerInterval) {
-    setTimeout(() => startTrickRound(), 150);
-  }
-
-  player.energy = Math.min(player.maxEnergy, player.energy + 25);
-  entry.count -= 1;
-
-  if (entry.count <= 0) {
-    player.consumables = player.consumables.filter(c => c.id !== 'energy_drink');
-  }
-
-  showTrickEffect('🥤 +25⚡');
-  finalizePlayerUpdate();
-  updateTrickOverlayHUD();
 }
 
 function quickRepairFromTrickOverlay() {
@@ -884,10 +1055,6 @@ function quickRepairFromTrickOverlay() {
     showTrickEffect('🔧 ПОЧИНЕН');
     finalizePlayerUpdate();
     updateTrickOverlayHUD();
-
-    if (isTrickOverlayOpen() && !trickRoundActive && !runnerInterval) {
-      setTimeout(() => startTrickRound(), 150);
-    }
     return;
   }
 
@@ -897,10 +1064,6 @@ function quickRepairFromTrickOverlay() {
     showTrickEffect('🔧 ПОЧИНЕН ЗА XP');
     finalizePlayerUpdate();
     updateTrickOverlayHUD();
-
-    if (isTrickOverlayOpen() && !trickRoundActive && !runnerInterval) {
-      setTimeout(() => startTrickRound(), 150);
-    }
     return;
   }
 
@@ -908,21 +1071,74 @@ function quickRepairFromTrickOverlay() {
   updateTrickOverlayHUD();
 }
 
-function getRewardMultiplier() {
-  let mult = 1 + (player.level / 50);
-  if (player.combo > 0) mult *= (1 + Math.min(0.5, player.combo * 0.1));
-  if (player.energy < 30) mult *= 0.5;
-  if (player.equipped.body === 'jacket') mult *= 1.1;
+function getCoinsRewardMultiplier() {
+  let mult = BALANCE.rewardMultiplier || 1;
+
+  if (player.combo > 0) {
+    mult *= 1 + Math.min(0.2, player.combo * 0.04);
+  }
+
+  if (player.equipped.body === 'jacket') {
+    mult *= 1.1;
+  }
+
   const rewardUpgrade = player.upgrades?.scooter?.reward || 0;
-  mult *= (1 + rewardUpgrade * 0.1);
+  mult *= 1 + rewardUpgrade * 0.08;
+
+  if (player.energy < 30) {
+    mult *= 0.85;
+  }
+
+  return Math.max(0.5, mult);
+}
+
+function getXPRewardMultiplier(fromRide = false) {
+  let mult = 1;
+
+  if (!fromRide && player.combo > 0) {
+    mult *= 1 + Math.min(0.15, player.combo * 0.025);
+  }
+
+  const rewardUpgrade = player.upgrades?.scooter?.reward || 0;
+  mult *= 1 + rewardUpgrade * 0.05;
+
+  if (player.energy < 30) {
+    mult *= 0.9;
+  }
+
   return Math.max(0.5, mult);
 }
 
 function getRideXPMultiplier() {
   return 1;
 }
+
+function getItemUnlockLevel(item) {
+  return Math.max(1, Number(item?.unlockLevel) || 1);
+}
+function getPlayerTitle(level) {
+  if (level >= 20) return 'ПРО';
+  if (level >= 10) return 'РАЙДЕР';
+  if (level >= 5) return 'НОВИЧОК';
+  return 'НОВЕНЬКИЙ';
+}
+function getPlayerNameColor(level) {
+  if (level >= 20) return '#ff4d6d';   // красный (PRO)
+  if (level >= 10) return '#f8e070';   // золотой
+  if (level >= 5) return '#8fe0ff';    // голубой
+  return '#ffffff';                    // обычный
+}
+function isItemUnlocked(item) {
+  return player.level >= getItemUnlockLevel(item);
+}
+
+function getItemsUnlockedAtLevel(level) {
+  return [...shopItems, ...workshopItems].filter(item => getItemUnlockLevel(item) === level);
+}
+
 function processLevelUps() {
   let leveledUp = false;
+  const unlockedNames = [];
 
   while (player.xp >= player.xpToNext) {
     player.xp -= player.xpToNext;
@@ -930,17 +1146,27 @@ function processLevelUps() {
     player.xpToNext = BALANCE.xpBase + (player.level - 1) * BALANCE.xpIncrement;
     syncSkillFromLevel();
     leveledUp = true;
+
+    const unlockedNow = getItemsUnlockedAtLevel(player.level);
+    if (unlockedNow.length) {
+      unlockedNames.push(...unlockedNow.map(item => item.name));
+    }
   }
 
   if (leveledUp) {
     player.energy = Math.min(player.maxEnergy, player.energy + 10);
-    player.drive = Math.min(100, player.drive + 10);
+    player.drive = Math.min(100, player.drive + 6);
     showTrickEffect(`✨ LEVEL UP! ${player.level} ✨`);
 
     const levelBox = document.querySelector('.level-box');
     if (levelBox) {
       levelBox.classList.add('level-up-glow');
       setTimeout(() => levelBox.classList.remove('level-up-glow'), 600);
+    }
+
+    if (unlockedNames.length) {
+      const uniqueNames = [...new Set(unlockedNames)];
+      showWarning(`🔓 ОТКРЫТО:\n${uniqueNames.join(', ')}`);
     }
   }
 
@@ -1018,7 +1244,6 @@ function finalizePlayerUpdate() {
     renderWorkshopSelectedItemInfo();
     updateVehiclePreview();
   }
-
   saveState();
 }
 
@@ -1026,13 +1251,22 @@ function addXP(amount, fromRide = false) {
   if (amount <= 0) return;
 
   let finalAmount = amount;
+
   if (fromRide) {
-    finalAmount = Math.floor(amount * getRideXPMultiplier());
+    finalAmount = Math.floor(finalAmount * getRideXPMultiplier());
+    finalAmount = Math.floor(finalAmount * 0.85);
+  } else {
+    finalAmount = Math.floor(finalAmount * 0.9);
   }
 
-  const finalXP = Math.floor(finalAmount * getRewardMultiplier());
-  player.xp += finalXP;
-  showTrickEffect(`+${finalXP} XP`);
+  finalAmount = Math.floor(finalAmount * getXPRewardMultiplier(fromRide));
+
+  if (finalAmount <= 0) {
+    finalAmount = 1;
+  }
+
+  player.xp += finalAmount;
+  showTrickEffect(`+${finalAmount} XP`);
 
   processLevelUps();
   finalizePlayerUpdate();
@@ -1041,13 +1275,27 @@ function addXP(amount, fromRide = false) {
 function addCoins(amount) {
   if (amount <= 0) return;
 
-  const finalCoins = Math.floor(amount * getRewardMultiplier());
+  let finalCoins = amount;
+
+  // лёгкое ослабление базовой награды
+  finalCoins = Math.floor(finalCoins * 0.9);
+
+  // основной множитель
+  finalCoins = Math.floor(finalCoins * getCoinsRewardMultiplier());
+
+  // мягкий кап (чтобы комбо не ломало экономику)
+  if (finalCoins > amount * 1.8) {
+    finalCoins = Math.floor(amount * 1.8);
+  }
+
+  // минимум 1
+  finalCoins = Math.max(1, finalCoins);
+
   player.coins += finalCoins;
   showTrickEffect(`💰 +${finalCoins}`);
 
   finalizePlayerUpdate();
 }
-
 function animateStat(id, type) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -1154,17 +1402,37 @@ function updateStats() {
 
   const scooterStatus = document.getElementById('scooterStatus');
   const xpAmountSpan = document.getElementById('xpAmount');
+  const repairCoinsBtn = document.getElementById('repairCoinsBtn');
+  const repairXPBtn = document.getElementById('repairXPBtn');
   const sleepIcon = document.getElementById('sleepIcon');
   const brokenIcon = document.getElementById('brokenIcon');
   const levelText = document.getElementById('levelText');
   const xpBarFill = document.getElementById('xpBarFill');
   const comboText = document.getElementById('comboText');
 
-  if (scooterStatus) scooterStatus.textContent = player.scooter;
-  if (xpAmountSpan) xpAmountSpan.textContent = player.xp;
-  if (sleepIcon) sleepIcon.style.display = player.isSleeping ? 'inline' : 'none';
-  if (brokenIcon) brokenIcon.style.display = player.scooter === 0 ? 'inline' : 'none';
-  if (levelText) levelText.textContent = `УРОВЕНЬ ${player.level}`;
+if (scooterStatus) scooterStatus.textContent = player.scooter;
+if (xpAmountSpan) xpAmountSpan.textContent = player.xp;
+if (repairCoinsBtn) repairCoinsBtn.textContent = `💰 За монеты (${BALANCE.repairCoins})`;
+if (repairXPBtn) repairXPBtn.textContent = `✨ За XP (${BALANCE.repairXP})`;
+if (sleepIcon) sleepIcon.style.display = player.isSleeping ? 'inline' : 'none';
+if (brokenIcon) brokenIcon.style.display = player.scooter === 0 ? 'inline' : 'none';
+
+if (levelText) {
+  const name = (player.name && player.name.trim() ? player.name : 'РАЙДЕР').toUpperCase();
+
+  let title = 'НОВИЧОК';
+  let color = '#8fe0ff';
+
+  if (typeof getPlayerTitle === 'function') {
+    title = getPlayerTitle(player.level);
+  }
+
+  if (typeof getPlayerNameColor === 'function') {
+    color = getPlayerNameColor(player.level);
+  }
+
+  levelText.innerHTML = `<span id="playerNameInline" style="color:${color}">${name}</span><span style="opacity:0.6; margin-left:6px;">[${title}]</span> • УРОВЕНЬ ${player.level}`;
+}
   if (xpBarFill) xpBarFill.style.width = `${(player.xp / player.xpToNext) * 100}%`;
   if (comboText) comboText.textContent = player.combo > 0 ? `КОМБО x${player.combo}` : '';
   if (energyBarFill) energyBarFill.style.width = `${Math.max(0, Math.min(100, (player.energy / player.maxEnergy) * 100))}%`;
@@ -1198,6 +1466,7 @@ function updateStats() {
   renderDailyBonusPanel();
   updateTrickOverlayHUD();
 }
+
 
 function renderShopFilters() {
   const filtersContainer = document.getElementById('shopFilters');
@@ -1237,6 +1506,7 @@ function renderShopModal() {
   const visibleItems = shopItems.filter(item => {
     const owned = player.ownedShopItems && player.ownedShopItems.includes(item.id);
 
+    if (!isItemUnlocked(item)) return false;
     if (item.type === 'clothes' && owned) return false;
     if (uiState.currentShopFilter !== 'all' && item.type !== uiState.currentShopFilter) return false;
 
@@ -1249,17 +1519,18 @@ function renderShopModal() {
 
   if (!visibleItems.length) {
     uiState.selectedShopItem = null;
-    content.innerHTML = '<p style="text-align:center; padding:20px;">🛍️ НИЧЕГО НЕ НАЙДЕНО</p>';
+    content.innerHTML = '<p style="text-align:center; padding:20px;">🛍️ НИЧЕГО НЕ ОТКРЫТО</p>';
     renderShopPreview();
     return;
   }
 
-const selectedStillVisible = uiState.selectedShopItem
-  && visibleItems.some(item => item.id === uiState.selectedShopItem.id);
+  const selectedStillVisible =
+    uiState.selectedShopItem &&
+    visibleItems.some(item => item.id === uiState.selectedShopItem.id);
 
-if (!selectedStillVisible) {
-  uiState.selectedShopItem = visibleItems[0];
-}
+  if (!selectedStillVisible) {
+    uiState.selectedShopItem = visibleItems[0];
+  }
 
   visibleItems.forEach(item => {
     const consumableCount = item.type === 'consumable'
@@ -1282,10 +1553,10 @@ if (!selectedStillVisible) {
       }
     `;
 
-card.addEventListener('click', () => {
-  uiState.selectedShopItem = item;
-  renderShopModal();
-});
+    card.addEventListener('click', () => {
+      uiState.selectedShopItem = item;
+      renderShopModal();
+    });
 
     content.appendChild(card);
   });
@@ -1394,6 +1665,11 @@ function buyShopItem(id) {
   const item = shopItems.find(i => i.id === id);
   if (!item) return;
 
+  if (!isItemUnlocked(item)) {
+    showWarning(`❌ НУЖЕН ${getItemUnlockLevel(item)} УРОВЕНЬ!`);
+    return;
+  }
+
   if (player.coins < item.price) {
     showWarning('❌ НЕ ХВАТАЕТ МОНЕТ!');
     return;
@@ -1428,6 +1704,7 @@ function buyShopItem(id) {
   finalizePlayerUpdate();
   openShopModal(false);
 }
+
 function equipInventoryItem(id) {
   const item = shopItems.find(i => i.id === id);
   if (!item) return;
@@ -1794,8 +2071,9 @@ function getFilteredCustomizationItems() {
   return workshopItems.filter(item => {
     if (item.vehicleType !== player.type) return false;
     if (item.type !== 'custom') return false;
-if (uiState.currentCustomizationFilter === 'all') return true;
-return item.slot === uiState.currentCustomizationFilter;
+    if (!isItemUnlocked(item)) return false;
+    if (uiState.currentCustomizationFilter === 'all') return true;
+    return item.slot === uiState.currentCustomizationFilter;
   });
 }
 
@@ -1971,6 +2249,11 @@ function buyCustomizationItem(itemId) {
   const item = workshopItems.find(i => i.id === itemId);
   if (!item) return;
 
+  if (!isItemUnlocked(item)) {
+    showWarning(`❌ НУЖЕН ${getItemUnlockLevel(item)} УРОВЕНЬ!`);
+    return;
+  }
+
   if (!player.ownedCustomization) player.ownedCustomization = [];
 
   if (player.ownedCustomization.includes(itemId)) {
@@ -1985,12 +2268,13 @@ function buyCustomizationItem(itemId) {
 
   player.coins -= item.price;
   player.ownedCustomization.push(itemId);
+
   if (item.vehicleType === 'scooter') {
-  if (!uiState.previewCustomization) {
-    syncPreviewCustomizationFromPlayer();
+    if (!uiState.previewCustomization) {
+      syncPreviewCustomizationFromPlayer();
+    }
+    uiState.previewCustomization[item.slot] = item.variant;
   }
-  uiState.previewCustomization[item.slot] = item.variant;
-}
 
   finalizePlayerUpdate();
   openWorkshopPanel(false);
@@ -2071,6 +2355,11 @@ if (!selectedStillVisible) {
 function buyWorkshopUpgrade(itemId) {
   const item = workshopItems.find(i => i.id === itemId);
   if (!item) return;
+
+  if (!isItemUnlocked(item)) {
+    showWarning(`❌ НУЖЕН ${getItemUnlockLevel(item)} УРОВЕНЬ!`);
+    return;
+  }
 
   if (!player.ownedUpgrades) player.ownedUpgrades = [];
 
@@ -2531,7 +2820,7 @@ function openStartScreen(mode = 'create') {
   if (!startScreen) return;
 
   startScreen.style.display = 'flex';
-  document.querySelectorAll('.top-bar, .level-box, .stats-row, .rider-container, .game-actions, .game-title, .footer-note, .mini-game').forEach(el => {
+  document.querySelectorAll('.top-bar, .level-box, .stats-row, .rider-container, .game-actions, .game-title, .footer-note').forEach(el => {
     if (el) el.style.opacity = '0.3';
   });
 
@@ -2544,10 +2833,10 @@ function openStartScreen(mode = 'create') {
   });
 
   const skinIds = uiState.currentType === 'scooter'
-    ? ['scooter1', 'scooter2', 'scooter3']
-    : currentType === 'skate'
-      ? ['skate1', 'skate2', 'skate3']
-      : ['roller1', 'roller2', 'roller3'];
+  ? ['scooter1', 'scooter2', 'scooter3']
+  : uiState.currentType === 'skate'
+    ? ['skate1', 'skate2', 'skate3']
+    : ['roller1', 'roller2', 'roller3'];
 
   uiState.currentSkinIndex = Math.max(0, skinIds.indexOf(player.skin));
   renderSkinCarousel();
@@ -2556,7 +2845,7 @@ function openStartScreen(mode = 'create') {
 function hideStartScreen() {
   const startScreen = document.getElementById('startScreen');
   if (startScreen) startScreen.style.display = 'none';
-  document.querySelectorAll('.top-bar, .level-box, .stats-row, .rider-container, .game-actions, .game-title, .footer-note, .mini-game').forEach(el => {
+  document.querySelectorAll('.top-bar, .level-box, .stats-row, .rider-container, .game-actions, .game-title, .footer-note').forEach(el => {
     if (el) el.style.opacity = '';
   });
 }
@@ -2564,6 +2853,7 @@ function hideStartScreen() {
 function startGameHandler() {
   const nameInput = document.getElementById('riderNameInput');
   const name = nameInput.value.trim();
+
   if (!name) {
     showWarning('❌ Введите имя райдера!');
     nameInput.focus();
@@ -2571,15 +2861,20 @@ function startGameHandler() {
   }
 
   player.name = name;
-  player.type = currentType;
   player.type = uiState.currentType;
-player.skin =
-  uiState.currentSkinsList[uiState.currentSkinIndex]?.id ||
-  (uiState.currentType === 'scooter'
-    ? 'scooter1'
-    : uiState.currentType === 'skate'
-      ? 'skate1'
-      : 'roller1');
+
+  // ВАЖНО: гарантируем, что список скинов актуален
+  renderSkinCarousel();
+
+  const fallbackSkin =
+    uiState.currentType === 'scooter'
+      ? 'scooter1'
+      : uiState.currentType === 'skate'
+        ? 'skate1'
+        : 'roller1';
+
+  player.skin =
+    uiState.currentSkinsList?.[uiState.currentSkinIndex]?.id || fallbackSkin;
 
   applySkin(player.type, player.skin);
   saveState();
@@ -2606,10 +2901,6 @@ function closeActiveElement() {
     closeTrickOverlay();
     return;
   }
-if (activeElement === miniGame) {
-  stopTrickRoundAnimation();
-  miniGame.style.display = 'none';
-}  
   else if (activeElement === ridingProgressContainer) {
     if (ridingInterval) clearInterval(ridingInterval);
     ridingInterval = null;
@@ -2724,11 +3015,11 @@ function handleRideClick() {
     ridingInterval = null;
 
   player.energy = Math.max(0, player.energy - BALANCE.rideEnergyCost);
-  player.drive = Math.min(100, player.drive + 10);
+  player.drive = Math.min(100, player.drive + 6);
   player.quests.ridesCount++;
 
   addXP(BALANCE.rideBaseXP, true);
-  addCoins(BALANCE.rideBaseCoins);
+  addCoins(BALANCE.rideBaseCoins + 1);
   showTrickEffect('🚴');
 
   rideBtn.disabled = false;
@@ -2744,7 +3035,9 @@ function handleRest() {
   if (player.energy >= player.maxEnergy) return showTrickEffect('⚡ MAX');
 
   player.energy = Math.min(player.maxEnergy, player.energy + BALANCE.restEnergyGain);
-  player.drive = Math.max(0, player.drive - 10);
+  player.drive = Math.max(0, player.drive - 18);
+  player.combo = 0;
+
   if (player.energy > 0) player.isSleeping = false;
 
   showTrickEffect(`😴 +${BALANCE.restEnergyGain}⚡`);
@@ -3167,126 +3460,6 @@ document.getElementById('claimDailyBonusBtn').addEventListener('click', claimDai
     });
   }
 
-trickMiniGame.addEventListener('click', () => {
-  if (!isTrickOverlayOpen()) return;
-  if (!trickRoundActive) return;
-
-  stopTrickRoundAnimation();
-
-  const runnerCenter = trickRoundState.position + trickRunner.offsetWidth / 2;
-
-  const greenLeft = trickRoundState.greenLeft;
-  const greenRight = trickRoundState.greenLeft + trickRoundState.greenWidth;
-
-  const perfectLeft = trickRoundState.perfectLeft;
-  const perfectRight = trickRoundState.perfectLeft + trickRoundState.perfectWidth;
-
-  let trickResult = 'miss';
-
-  if (runnerCenter >= perfectLeft && runnerCenter <= perfectRight) {
-    trickResult = 'perfect';
-  } else if (runnerCenter >= greenLeft && runnerCenter <= greenRight) {
-    trickResult = 'good';
-  }
-
-  let energyCost = BALANCE.trickEnergyCost;
-  const efficiency = player.upgrades?.scooter?.efficiency || 0;
-  energyCost *= Math.max(0.5, 1 - efficiency * 0.1);
-  energyCost = Math.floor(energyCost);
-
-  if (player.equipped.head === 'helmet') {
-    energyCost = Math.floor(energyCost * 0.85);
-  }
-
-  flashTrickModal('perfect');
-  AudioManager.perfect();
-  vibrateFeedback([20, 30, 45]);
-
-if (trickResult === 'perfect') {
-  player.drive = Math.min(100, player.drive + 25);
-  player.combo = Math.min(20, player.combo + 1);
-  player.quests.trickStreakCount = (player.quests.trickStreakCount || 0) + 1;
-  player.quests.trickStreak = player.combo;
-
-  const comboBonus = Math.min(1.8, 1 + player.combo * 0.03);
-  addXP(Math.floor(BALANCE.trickBaseXP * 1.5 * comboBonus));
-  addCoins(Math.floor(BALANCE.trickBaseCoins * 1.5 * comboBonus));
-
-  flashTrickModal('perfect');
-  AudioManager.perfect();
-  vibrateFeedback([20, 30, 45]);
-
-  if (trickResultText) {
-    trickResultText.className = 'trick-result-text result-perfect';
-    trickResultText.textContent = `🌟 PERFECT! КОМБО x${player.combo} 🌟`;
-  }
-
-} else if (trickResult === 'good') {
-  player.drive = Math.min(100, player.drive + 20);
-  player.combo = Math.min(20, player.combo + 1);
-  player.quests.trickStreakCount = (player.quests.trickStreakCount || 0) + 1;
-  player.quests.trickStreak = player.combo;
-
-  const comboBonus = Math.min(1.4, 1 + player.combo * 0.02);
-  addXP(Math.floor(BALANCE.trickBaseXP * comboBonus));
-  addCoins(Math.floor(BALANCE.trickBaseCoins * comboBonus));
-
-  flashTrickModal('good');
-  AudioManager.good();
-  vibrateFeedback(18);
-
-  if (trickResultText) {
-    trickResultText.className = 'trick-result-text result-good';
-    trickResultText.textContent = `✨ GOOD! КОМБО x${player.combo}`;
-  }
-  } else {
-    player.drive = Math.max(0, player.drive - 20);
-    player.scooter = Math.max(0, player.scooter - BALANCE.penaltyScooter);
-    player.combo = 0;
-    player.quests.trickStreak = 0;
-    player.coins = Math.max(0, player.coins - BALANCE.penaltyCoins);
-
-    flashTrickModal('miss');
-    AudioManager.miss();
-    vibrateFeedback(80);
-    trickRoundState.easeNextRound = true;
-    if (trickResultText) {
-      trickResultText.className = 'trick-result-text result-miss';
-      trickResultText.textContent = `💥 MISS! -${BALANCE.penaltyCoins}💰`;
-    }
-  }
-
-  player.energy = Math.max(0, player.energy - energyCost);
-
-  let wear = 10;
-
-  if (trickResult === 'perfect') {
-    wear = 6;
-  } else if (trickResult === 'good') {
-    wear = 10;
-  } else {
-    wear = 14;
-  }
-
-  const durability = player.upgrades?.scooter?.durability || 0;
-  wear *= Math.max(0.5, 1 - durability * 0.15);
-  player.scooter = Math.max(0, player.scooter - Math.floor(wear));
-
-  finalizePlayerUpdate();
-  updateTrickOverlayHUD();
-
-const nextRoundDelay =
-  trickResult === 'perfect'
-    ? 820
-    : trickResult === 'good'
-      ? 520
-      : 680;
-
-  setTimeout(() => {
-    if (!isTrickOverlayOpen()) return;
-    startTrickRound();
-  }, nextRoundDelay);
-});
 
   document.querySelectorAll('img:not(#riderImg):not(#carouselSkinImg)').forEach(img => {
     img.addEventListener('error', () => {
@@ -3312,4 +3485,21 @@ setInterval(updateBackgroundByTime, 60000);
 
 window.addEventListener('resize', () => {
   syncInventoryStickyOffsets();
+});
+document.addEventListener('keydown', (e) => {
+  if (!trickInputOpen) return;
+
+  if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
+    selectedDirection = 'left';
+  } else if (e.code === 'KeyD' || e.code === 'ArrowRight') {
+    selectedDirection = 'right';
+  } else if (e.code === 'KeyW' || e.code === 'ArrowUp') {
+    selectedDirection = 'up';
+  } else if (e.code === 'KeyS' || e.code === 'ArrowDown') {
+    selectedDirection = 'down';
+  } else {
+    return;
+  }
+
+  console.log('direction selected:', selectedDirection);
 });
