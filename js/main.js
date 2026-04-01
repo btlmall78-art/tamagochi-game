@@ -252,12 +252,6 @@ const trickComboText = document.getElementById('trickComboText');
 const trickLevelText = document.getElementById('trickLevelText');
 const trickCoinsText = document.getElementById('trickCoinsText');
 const trickXpFill = document.getElementById('trickXpFill');
-<<<<<<< HEAD
-=======
-const trickHelpText = document.getElementById('trickHelpText');
-const trickResultText = document.getElementById('trickResultText');
-
->>>>>>> 2e059611c205e3ab79ce80abac2853ce110ecdaf
 const trickQuickRestBtn = document.getElementById('trickQuickRestBtn');
 const trickQuickEnergyBtn = document.getElementById('trickQuickEnergyBtn');
 const trickQuickRepairBtn = document.getElementById('trickQuickRepairBtn');
