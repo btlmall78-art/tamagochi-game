@@ -10,11 +10,57 @@ const TRICK_SETS = {
 };
 
 // комбинации (заготовка)
-const TRICK_COMBOS = {
-  'left>right': 'COMBO_LR',
-  'up>right': 'COMBO_UR',
-  'down>up': 'COMBO_DU'
+const TRICK_COMBO_SETS = {
+  beginner: {
+    'left>right': 'BAR TWIST',
+    'right>left': 'SWITCH CUT',
+    'up>down': 'AIR RESET',
+    'down>up': 'KICK LIFT'
+  },
+  intermediate: {
+    'left>right': 'WHIP LINE',
+    'right>left': 'REWIND BAR',
+    'up>right': 'SPIN KICK',
+    'down>up': 'BOOSTER'
+  },
+  advanced: {
+    'left>right': 'DOUBLE FLOW',
+    'right>left': 'REVERSE VARIAL',
+    'up>right': 'AIR COMBO',
+    'down>up': 'LIFT TWIST'
+  },
+  pro: {
+    'left>right': 'FLAIR LINE',
+    'right>left': 'BRI REWIND',
+    'up>right': 'CASH LINK',
+    'down>up': 'ROTOR COMBO'
+  }
 };
+
+function getTrickNameByInput(difficulty, sequence) {
+  const safeDifficulty = TRICK_SETS[difficulty] ? difficulty : 'beginner';
+  const inputs = Array.isArray(sequence) ? sequence.filter(Boolean) : [];
+
+  if (inputs.length >= 2) {
+    const comboKey = inputs.slice(-2).join('>');
+    const comboSet = TRICK_COMBO_SETS[safeDifficulty] || {};
+
+    if (comboSet[comboKey]) {
+      return comboSet[comboKey];
+    }
+  }
+
+  if (inputs.length >= 1) {
+    const direction = inputs[inputs.length - 1];
+    const set = TRICK_SETS[safeDifficulty];
+
+    if (set[direction]) {
+      return set[direction];
+    }
+  }
+
+  return TRICK_SETS[safeDifficulty].base;
+}
 
 const TRICK_CATEGORIES = {
   base: ['BUNNY HOP', 'BARSPIN', 'DOUBLE BARSPIN', 'BACKFLIP'],

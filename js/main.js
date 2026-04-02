@@ -1,7 +1,3 @@
-console.log('main.js загрузился');
-console.log('BALANCE:', BALANCE);
-console.log('STORAGE_KEYS:', STORAGE_KEYS);
-
 function createDefaultUIState() {
   return {
     currentType: 'scooter',
@@ -282,6 +278,28 @@ const timingBar = document.getElementById('timingBar');
 const timingBarMarker = document.getElementById('timingBarMarker');
 const swipeHint = document.getElementById('swipeHint');
 const sceneFlash = document.getElementById('sceneFlash');
+
+setTrickAnimationRefs({
+  scene,
+  rider,
+  riderShadow,
+  resultPopup,
+  swipeHint,
+  sceneFlash
+});
+
+setTrickRuntimeRefs({
+  scene,
+  timingBar,
+  timingBarMarker,
+  getPlayer: () => player,
+  updateHUD: updateTrickOverlayHUD,
+  canStartRound: canStartArcadeRound,
+  applyRoundResult: applyArcadeRoundResult,
+  isOverlayOpen: isTrickOverlayOpen,
+  resetRider,
+  getDifficulty: () => currentDifficulty
+});
 
 const topTabButtons = Array.from(document.querySelectorAll('.top-tab-btn'));
 
@@ -615,111 +633,15 @@ function updateTrickOverlayHUD() {
   }
 }
 
-
-let arcadeLoopId = null;
-let arcadeLastTime = 0;
-let arcadeRoundActive = false;
-let arcadeRoundResolved = false;
-let arcadeMarkerPosition = 0;
-let arcadeMarkerDirection = 1;
-const ARCADE_MARKER_SPEED = 0.00115;
-const ARCADE_NEXT_ROUND_DELAY = 850;
-
-
 let currentDifficulty = 'beginner';
 
 const difficultyButtons = Array.from(document.querySelectorAll('.difficulty-btn'));
-
-function arcadeClamp(value, min, max) {
-  return Math.max(min, Math.min(max, value));
-}
-
-function showResult(text) {
-  console.log('showResult called with:', text, resultPopup);
-  if (!resultPopup) return;
-  resultPopup.textContent = text;
-  resultPopup.classList.add('show');
-  setTimeout(() => resultPopup.classList.remove('show'), 650);
-}
-
-function showSwipeHint() {
-  console.log('swipeHint element:', swipeHint);
-  if (swipeHint) swipeHint.classList.add('show');
-}
-
-function hideSwipeHint() {
-  if (swipeHint) swipeHint.classList.remove('show');
-}
 
 function setDifficulty(nextDifficulty) {
   currentDifficulty = nextDifficulty;
   difficultyButtons.forEach((button) => {
     button.classList.toggle('active', button.dataset.difficulty === nextDifficulty);
   });
-}
-
-function flashScene(type = 'good') {
-  if (!sceneFlash) return;
-  sceneFlash.style.background =
-    type === 'perfect'
-      ? 'rgba(255,255,180,0.72)'
-      : type === 'fail'
-        ? 'rgba(255,80,80,0.58)'
-        : 'rgba(255,255,255,0.55)';
-  sceneFlash.classList.add('active');
-  setTimeout(() => sceneFlash.classList.remove('active'), 110);
-}
-
-function shakeScene() {
-  if (!scene) return;
-  scene.classList.remove('is-shaking');
-  void scene.offsetWidth;
-  scene.classList.add('is-shaking');
-}
-
-function setRiderSprite(state) {
-  if (!rider) return;
-  rider.classList.remove('sprite-ride', 'sprite-crouch', 'sprite-jump', 'sprite-trick');
-  if (state === 'crouch') rider.classList.add('sprite-crouch');
-  else if (state === 'jump') rider.classList.add('sprite-jump');
-  else if (state === 'trick') rider.classList.add('sprite-trick');
-  else rider.classList.add('sprite-ride');
-}
-
-function setRiderVisual(y = 0, shadowScale = 1, shadowOpacity = 0.28) {
-  if (rider) rider.style.transform = `translateX(-50%) translateY(${y}px)`;
-  if (riderShadow) {
-    riderShadow.style.transform = `translateX(-50%) scaleX(${shadowScale})`;
-    riderShadow.style.opacity = String(shadowOpacity);
-  }
-}
-
-function resetRider() {
-  setRiderSprite('ride');
-  setRiderVisual(0, 1, 0.28);
-  hideSwipeHint();
-}
-
-function updateMarkerVisual() {
-  if (!timingBar || !timingBarMarker) return;
-  const barWidth = timingBar.clientWidth;
-  const markerWidth = timingBarMarker.clientWidth || 10;
-  const maxX = Math.max(0, barWidth - markerWidth);
-  timingBarMarker.style.transform = `translateX(${arcadeMarkerPosition * maxX}px)`;
-}
-
-function resetMarker() {
-  arcadeMarkerPosition = 0;
-  arcadeMarkerDirection = 1;
-  updateMarkerVisual();
-}
-
-function stopArcadeLoop() {
-  if (arcadeLoopId) {
-    cancelAnimationFrame(arcadeLoopId);
-    arcadeLoopId = null;
-  }
-  arcadeLastTime = 0;
 }
 
 function canStartArcadeRound() {
@@ -736,12 +658,6 @@ function canStartArcadeRound() {
     return false;
   }
   return true;
-}
-
-function getArcadeTimingResult() {
-  if (arcadeMarkerPosition >= 0.46 && arcadeMarkerPosition <= 0.54) return 'perfect';
-  if (arcadeMarkerPosition >= 0.34 && arcadeMarkerPosition <= 0.66) return 'good';
-  return 'fail';
 }
 
 function applyArcadeRoundResult(result) {
@@ -802,132 +718,6 @@ function applyArcadeRoundResult(result) {
   updateTrickOverlayHUD();
 }
 
-function animateArcadeSuccess(result) {
-  openTrickInput();
-
-  showSwipeHint();
-  setRiderSprite('crouch');
-  setRiderVisual(10, 1.12, 0.36);
-
-  setTimeout(() => {
-    setRiderSprite('jump');
-    setRiderVisual(result === 'perfect' ? -68 : -58, 0.84, 0.24);
-  }, 110);
-
-  setTimeout(() => {
-    setRiderSprite('trick');
-    setRiderVisual(result === 'perfect' ? -96 : -82, 0.70, 0.16);
-  }, 240);
-
-  setTimeout(() => {
-    closeTrickInput();
-    hideSwipeHint();
-  }, 700);
-
-  setTimeout(() => {
-  const direction = getSelectedTrickDirection();
-  const trickName =
-    (TRICK_SETS[currentDifficulty] && TRICK_SETS[currentDifficulty][direction]) ||
-    TRICK_SETS[currentDifficulty].base;
-
-    setRiderSprite('ride');
-    setRiderVisual(8, 1.08, 0.34);
-    flashScene(result === 'perfect' ? 'perfect' : 'good');
-    showResult(`${result === 'perfect' ? 'PERFECT' : 'GOOD'} • ${trickName}`);
-    shakeScene();
-  }, 650);
-
-  setTimeout(() => {
-    resetRider();
-  }, 820);
-}
-
-function animateArcadeFail() {
-  hideSwipeHint();
-  flashScene('fail');
-  shakeScene();
-  showResult('MISS');
-  resetRider();
-}
-
-function scheduleNextArcadeRound() {
-  setTimeout(() => {
-    if (isTrickOverlayOpen()) startArcadeRound();
-  }, ARCADE_NEXT_ROUND_DELAY);
-}
-
-function handleArcadeTap() {
-  if (!isTrickOverlayOpen()) return;
-  if (!arcadeRoundActive) {
-    startArcadeRound();
-    return;
-  }
-  if (arcadeRoundResolved) return;
-
-  arcadeRoundResolved = true;
-  arcadeRoundActive = false;
-  const result = getArcadeTimingResult();
-  stopArcadeLoop();
-  applyArcadeRoundResult(result);
-
-if (result === 'fail') {
-  console.log('CALLING FAIL', result);
-  animateArcadeFail();
-} else {
-  console.log('CALLING SUCCESS', result);
-  animateArcadeSuccess(result);
-}
-
-  scheduleNextArcadeRound();
-}
-
-function updateArcadeWorld(delta) {
-  if (!arcadeRoundActive || arcadeRoundResolved) return;
-  arcadeMarkerPosition += arcadeMarkerDirection * delta * ARCADE_MARKER_SPEED;
-  if (arcadeMarkerPosition >= 1) {
-    arcadeMarkerPosition = 1;
-    arcadeMarkerDirection = -1;
-  } else if (arcadeMarkerPosition <= 0) {
-    arcadeMarkerPosition = 0;
-    arcadeMarkerDirection = 1;
-  }
-  updateMarkerVisual();
-}
-
-function arcadeGameLoop(timestamp) {
-  if (!arcadeLastTime) arcadeLastTime = timestamp;
-  const delta = timestamp - arcadeLastTime;
-  arcadeLastTime = timestamp;
-  updateArcadeWorld(delta);
-  if (arcadeRoundActive) {
-    arcadeLoopId = requestAnimationFrame(arcadeGameLoop);
-  }
-}
-
-function startArcadeLoop() {
-  if (arcadeLoopId) {
-    cancelAnimationFrame(arcadeLoopId);
-    arcadeLoopId = null;
-  }
-  arcadeLastTime = 0;
-  arcadeLoopId = requestAnimationFrame(arcadeGameLoop);
-}
-
-function startArcadeRound() {
-  if (!isTrickOverlayOpen()) return;
-  if (!canStartArcadeRound()) {
-    arcadeRoundActive = false;
-    arcadeRoundResolved = true;
-    updateTrickOverlayHUD();
-    return;
-  }
-  arcadeRoundResolved = false;
-  arcadeRoundActive = true;
-  resetMarker();
-  resetRider();
-  startArcadeLoop();
-}
-
 function openTrickOverlay() {
   if (!trickOverlay) return;
   trickOverlay.classList.add('visible');
@@ -942,25 +732,17 @@ function openTrickOverlay() {
 function closeTrickOverlay() {
   if (!trickOverlay) return;
 
-  arcadeRoundActive = false;
-  arcadeRoundResolved = true;
-  stopArcadeLoop();
-  closeTrickInput();
+  closeTrickGame();
   hideSwipeHint();
+  resetRider();
+  resetTrickInputState();
 
   trickOverlay.classList.remove('visible');
   document.body.classList.remove('trick-overlay-open');
   activeElement = null;
-
-  resetRider();
-  resetMarker();
-  resetTrickInputState();
 }
 
-let touchStartX = 0;
-let touchStartY = 0;
-
-setupTrickSceneInput(scene, handleArcadeTap);
+setupTrickGame();
 
 difficultyButtons.forEach((button) => {
   button.addEventListener('click', () => {

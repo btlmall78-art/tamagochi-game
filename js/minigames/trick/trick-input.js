@@ -5,12 +5,63 @@ let trickTouchStartX = 0;
 let trickTouchStartY = 0;
 let trickTouchMoved = false;
 
+let trickInputBuffer = [];
+const TRICK_INPUT_BUFFER_LIFETIME = 600;
+const TRICK_INPUT_BUFFER_MAX = 2;
+
+let trickBufferRecordingEnabled = false;
+
+function clearExpiredTrickInputs() {
+  const now = Date.now();
+  trickInputBuffer = trickInputBuffer.filter(item => now - item.time <= TRICK_INPUT_BUFFER_LIFETIME);
+}
+
+function enableTrickInputBufferRecording() {
+  trickBufferRecordingEnabled = true;
+}
+
+function disableTrickInputBufferRecording() {
+  trickBufferRecordingEnabled = false;
+}
+
+function isTrickInputBufferRecordingEnabled() {
+  return trickBufferRecordingEnabled;
+}
+
+function pushTrickInput(direction) {
+  if (!isTrickInputBufferRecordingEnabled()) return;
+
+  clearExpiredTrickInputs();
+
+  trickInputBuffer.push({
+    direction,
+    time: Date.now()
+  });
+
+  if (trickInputBuffer.length > TRICK_INPUT_BUFFER_MAX) {
+    trickInputBuffer = trickInputBuffer.slice(-TRICK_INPUT_BUFFER_MAX);
+  }
+
+  selectedDirection = direction;
+}
+
+function getTrickInputSequence() {
+  clearExpiredTrickInputs();
+  return trickInputBuffer.map(item => item.direction);
+}
+
+function clearTrickInputBuffer() {
+  trickInputBuffer = [];
+}
+
 function resetTrickInputState() {
   selectedDirection = 'base';
   trickInputOpen = false;
   trickTouchStartX = 0;
   trickTouchStartY = 0;
   trickTouchMoved = false;
+  trickBufferRecordingEnabled = false;
+  clearTrickInputBuffer();
 }
 
 function openTrickInput() {
@@ -23,7 +74,7 @@ function closeTrickInput() {
 }
 
 function setTrickDirection(direction) {
-  selectedDirection = direction;
+  pushTrickInput(direction);
 }
 
 function getSelectedTrickDirection() {
