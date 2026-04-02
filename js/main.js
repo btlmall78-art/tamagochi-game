@@ -625,18 +625,10 @@ let arcadeMarkerDirection = 1;
 const ARCADE_MARKER_SPEED = 0.00115;
 const ARCADE_NEXT_ROUND_DELAY = 850;
 
+
 let currentDifficulty = 'beginner';
-let selectedDirection = 'base';
-let trickInputOpen = false;
 
 const difficultyButtons = Array.from(document.querySelectorAll('.difficulty-btn'));
-
-const TRICK_SETS = {
-  beginner: { base: 'BUNNY HOP', left: 'NO FOOTER', right: 'NO HANDER', up: '180', down: 'MANUAL' },
-  intermediate: { base: 'BARSPIN', left: 'TAILWHIP', right: 'HEELWHIP', up: '360', down: 'INDY GRAB' },
-  advanced: { base: 'DOUBLE BARSPIN', left: 'DOUBLE TAILWHIP', right: 'VARIAL HEELWHIP', up: '540', down: 'SMITH' },
-  pro: { base: 'BACKFLIP', left: 'FLAIR', right: 'BRI FLIP', up: 'CASH ROLL', down: 'ROTOR WHIP' }
-};
 
 function arcadeClamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -811,8 +803,7 @@ function applyArcadeRoundResult(result) {
 }
 
 function animateArcadeSuccess(result) {
-  selectedDirection = 'base';
-  trickInputOpen = true;
+  openTrickInput();
 
   showSwipeHint();
   setRiderSprite('crouch');
@@ -829,14 +820,15 @@ function animateArcadeSuccess(result) {
   }, 240);
 
   setTimeout(() => {
-    trickInputOpen = false;
+    closeTrickInput();
     hideSwipeHint();
   }, 700);
 
   setTimeout(() => {
-    const trickName =
-      (TRICK_SETS[currentDifficulty] && TRICK_SETS[currentDifficulty][selectedDirection]) ||
-      TRICK_SETS[currentDifficulty].base;
+  const direction = getSelectedTrickDirection();
+  const trickName =
+    (TRICK_SETS[currentDifficulty] && TRICK_SETS[currentDifficulty][direction]) ||
+    TRICK_SETS[currentDifficulty].base;
 
     setRiderSprite('ride');
     setRiderVisual(8, 1.08, 0.34);
@@ -953,6 +945,7 @@ function closeTrickOverlay() {
   arcadeRoundActive = false;
   arcadeRoundResolved = true;
   stopArcadeLoop();
+  closeTrickInput();
   hideSwipeHint();
 
   trickOverlay.classList.remove('visible');
@@ -961,42 +954,13 @@ function closeTrickOverlay() {
 
   resetRider();
   resetMarker();
+  resetTrickInputState();
 }
 
 let touchStartX = 0;
 let touchStartY = 0;
 
-if (scene) {
-  scene.addEventListener('click', handleArcadeTap);
-
-  scene.addEventListener('touchstart', (e) => {
-    const touch = e.changedTouches[0];
-    if (!touch) return;
-    touchStartX = touch.clientX;
-    touchStartY = touch.clientY;
-  }, { passive: true });
-
-  scene.addEventListener('touchend', (e) => {
-    const touch = e.changedTouches[0];
-    if (!touch) return;
-
-    const dx = touch.clientX - touchStartX;
-    const dy = touch.clientY - touchStartY;
-    const isSwipe = Math.abs(dx) > 20 || Math.abs(dy) > 20;
-
-    if (trickInputOpen && isSwipe) {
-      if (Math.abs(dx) > Math.abs(dy)) {
-        selectedDirection = dx > 0 ? 'right' : 'left';
-      } else {
-        selectedDirection = dy > 0 ? 'down' : 'up';
-      }
-      return;
-    }
-
-    e.preventDefault();
-    handleArcadeTap();
-  }, { passive: false });
-}
+setupTrickSceneInput(scene, handleArcadeTap);
 
 difficultyButtons.forEach((button) => {
   button.addEventListener('click', () => {
@@ -3485,21 +3449,4 @@ setInterval(updateBackgroundByTime, 60000);
 
 window.addEventListener('resize', () => {
   syncInventoryStickyOffsets();
-});
-document.addEventListener('keydown', (e) => {
-  if (!trickInputOpen) return;
-
-  if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
-    selectedDirection = 'left';
-  } else if (e.code === 'KeyD' || e.code === 'ArrowRight') {
-    selectedDirection = 'right';
-  } else if (e.code === 'KeyW' || e.code === 'ArrowUp') {
-    selectedDirection = 'up';
-  } else if (e.code === 'KeyS' || e.code === 'ArrowDown') {
-    selectedDirection = 'down';
-  } else {
-    return;
-  }
-
-  console.log('direction selected:', selectedDirection);
 });
