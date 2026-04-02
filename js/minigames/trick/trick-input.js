@@ -4,6 +4,7 @@ let trickInputOpen = false;
 let trickTouchStartX = 0;
 let trickTouchStartY = 0;
 let trickTouchMoved = false;
+let suppressNextSceneClick = false;
 
 let trickInputBuffer = [];
 const TRICK_INPUT_BUFFER_LIFETIME = 600;
@@ -43,6 +44,7 @@ function pushTrickInput(direction) {
   }
 
   selectedDirection = direction;
+  console.log('buffer:', trickInputBuffer.map(item => item.direction));
 }
 
 function getTrickInputSequence() {
@@ -60,6 +62,7 @@ function resetTrickInputState() {
   trickTouchStartX = 0;
   trickTouchStartY = 0;
   trickTouchMoved = false;
+  suppressNextSceneClick = false;
   trickBufferRecordingEnabled = false;
   clearTrickInputBuffer();
 }
@@ -86,7 +89,7 @@ function isTrickInputOpen() {
 }
 
 document.addEventListener('keydown', (e) => {
-  if (!isTrickInputOpen()) return;
+  if (!isTrickInputBufferRecordingEnabled()) return;
 
   if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
     setTrickDirection('left');
@@ -104,7 +107,15 @@ document.addEventListener('keydown', (e) => {
 function setupTrickSceneInput(sceneElement, onTap) {
   if (!sceneElement) return;
 
-  sceneElement.addEventListener('click', onTap);
+  sceneElement.addEventListener('click', (e) => {
+    if (suppressNextSceneClick) {
+      suppressNextSceneClick = false;
+      e.preventDefault();
+      return;
+    }
+
+    onTap();
+  });
 
   sceneElement.addEventListener('touchstart', (e) => {
     const touch = e.changedTouches[0];
@@ -116,7 +127,7 @@ function setupTrickSceneInput(sceneElement, onTap) {
   }, { passive: true });
 
   sceneElement.addEventListener('touchmove', (e) => {
-    if (!isTrickInputOpen()) return;
+    if (!isTrickInputBufferRecordingEnabled()) return;
 
     const touch = e.changedTouches[0];
     if (!touch) return;
@@ -138,15 +149,21 @@ function setupTrickSceneInput(sceneElement, onTap) {
     const absX = Math.abs(dx);
     const absY = Math.abs(dy);
 
-    if (isTrickInputOpen() && trickTouchMoved && (absX > 24 || absY > 24)) {
+    const isSwipe = trickTouchMoved && (absX > 24 || absY > 24);
+
+    if (isTrickInputBufferRecordingEnabled() && isSwipe) {
       if (absX > absY) {
         setTrickDirection(dx > 0 ? 'right' : 'left');
       } else {
         setTrickDirection(dy > 0 ? 'down' : 'up');
       }
+
+      suppressNextSceneClick = true;
+      e.preventDefault();
       return;
     }
 
+    suppressNextSceneClick = true;
     e.preventDefault();
     onTap();
   }, { passive: false });

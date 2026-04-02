@@ -130,6 +130,7 @@ function startArcadeRound() {
 
   clearTrickInputBuffer();
   enableTrickInputBufferRecording();
+  hideSwipeHint();
 
   resetMarker();
   if (resetRider) resetRider();
@@ -165,16 +166,16 @@ function handleArcadeTap() {
   if (result === 'fail') {
     animateArcadeFail();
   } else {
+    const difficulty = getDifficulty ? getDifficulty() : 'beginner';
+    const sequence = getTrickInputSequence();
+    const resolvedTrickName = getTrickNameByInput(difficulty, sequence);
+
     animateArcadeSuccess({
       result,
-      currentDifficulty: getDifficulty ? getDifficulty() : 'beginner',
-      getDirection: getSelectedTrickDirection,
-      getTrickName: (difficulty) => {
-        const sequence = getTrickInputSequence();
-        return getTrickNameByInput(difficulty, sequence);
-      },
-      onInputOpen: openTrickInput,
-      onInputClose: closeTrickInput
+      currentDifficulty: difficulty,
+      resolvedTrickName,
+      onInputOpen: null,
+      onInputClose: null
     });
   }
 

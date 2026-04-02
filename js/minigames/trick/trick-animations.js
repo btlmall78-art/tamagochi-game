@@ -87,16 +87,12 @@ function resetRider() {
 function animateArcadeSuccess({
   result,
   currentDifficulty,
-  getDirection,
-  getTrickName,
+  resolvedTrickName,
   onInputOpen,
   onInputClose
 }) {
-  if (onInputOpen) onInputOpen();
-
-  showSwipeHint();
-  setRiderSprite('crouch');
-  setRiderVisual(10, 1.12, 0.36);
+    setRiderSprite('crouch');
+    setRiderVisual(10, 1.12, 0.36);
 
   setTimeout(() => {
     setRiderSprite('jump');
@@ -109,17 +105,14 @@ function animateArcadeSuccess({
   }, 240);
 
   setTimeout(() => {
-    if (onInputClose) onInputClose();
     hideSwipeHint();
   }, 700);
 
   setTimeout(() => {
-    const trickName = getTrickName(currentDifficulty);
-
     setRiderSprite('ride');
     setRiderVisual(8, 1.08, 0.34);
     flashScene(result === 'perfect' ? 'perfect' : 'good');
-    showResult(`${result === 'perfect' ? 'PERFECT' : 'GOOD'} • ${trickName}`);
+    showResult(`${result === 'perfect' ? 'PERFECT' : 'GOOD'} • ${resolvedTrickName}`);
     shakeScene();
   }, 650);
 
